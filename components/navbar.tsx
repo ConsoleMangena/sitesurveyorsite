@@ -18,6 +18,7 @@ import {
   HamburgerMenuIcon,
   Cross1Icon,
   ExitIcon,
+  BellIcon,
 } from "@radix-ui/react-icons";
 import Link from "next/link";
 import Image from "next/image";
@@ -43,6 +44,19 @@ export default function NavBar() {
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border/80 shadow-sm relative">
+      {user && (
+        <div className="w-full bg-sky-500/10 border-b border-sky-500/20 text-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-1.5 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sky-700 dark:text-sky-300">
+              <BellIcon className="h-4 w-4" />
+              <span className="hidden sm:inline">You have notifications</span>
+            </div>
+            <Link href="/notifications" className="text-sky-700 dark:text-sky-300 hover:underline underline-offset-4">
+              View notifications
+            </Link>
+          </div>
+        </div>
+      )}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex sm:hidden">
