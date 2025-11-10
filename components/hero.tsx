@@ -107,13 +107,13 @@ export default function Hero() {
           className="flex flex-col justify-center items-center space-y-5 max-w-4xl mx-auto text-center"
         >
           <span className="w-fit h-full text-sm bg-card px-2 py-1 border border-border rounded-full">
-            Affordable Geomatics Software
+            Efficient & Lightweight
           </span>
           <h1 className="text-3xl font-medium tracking-tighter mx-auto md:text-4xl text-pretty bg-linear-to-b from-sky-800 dark:from-sky-100 to-foreground dark:to-foreground bg-clip-text text-transparent">
-            Affordable Geomatics Software for Professionals
+            Efficient, lightweight geomatics and planning software
           </h1>
           <p className="max-w-2xl text-lg mx-auto text-muted-foreground text-balance">
-            Geomatics software for land surveying, GPS tracking, and mapping.
+            Efficient, lightweight geomatics and planning software.
           </p>
           <motion.div
             whileHover={{ scale: 1.05 }}
