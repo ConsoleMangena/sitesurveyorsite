@@ -51,8 +51,8 @@ function mapDoc(doc: Models.Document): LeaderUser {
   };
 }
 
-export async function getTopUsers(limit = 6): Promise<LeaderUser[] | null> {
-  if (!DB_ID || !COLLECTION_ID) return null;
+export async function getTopUsers(limit = 6): Promise<LeaderUser[]> {
+  if (!DB_ID || !COLLECTION_ID) return [];
   try {
     const res = await databases.listDocuments<Models.Document>(DB_ID, COLLECTION_ID, [
       Query.orderDesc("score"),
@@ -60,12 +60,12 @@ export async function getTopUsers(limit = 6): Promise<LeaderUser[] | null> {
     ]);
     return res.documents.map(mapDoc);
   } catch {
-    return null;
+    return [];
   }
 }
 
-export async function getAllUsers(limit = 60): Promise<LeaderUser[] | null> {
-  if (!DB_ID || !COLLECTION_ID) return null;
+export async function getAllUsers(limit = 60): Promise<LeaderUser[]> {
+  if (!DB_ID || !COLLECTION_ID) return [];
   try {
     const res = await databases.listDocuments<Models.Document>(DB_ID, COLLECTION_ID, [
       Query.orderDesc("score"),
@@ -73,6 +73,6 @@ export async function getAllUsers(limit = 60): Promise<LeaderUser[] | null> {
     ]);
     return res.documents.map(mapDoc);
   } catch {
-    return null;
+    return [];
   }
 }

@@ -5,12 +5,24 @@ import { getAllUsers, LeaderUser } from "@/lib/leaderboard";
 
 export default function LeaderboardPage() {
   const [users, setUsers] = useState<LeaderUser[] | null>(null);
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const res = await getAllUsers(60);
-      if (!cancelled) setUsers(res);
+      try {
+        const res = await getAllUsers(60);
+        if (!cancelled) {
+          setUsers(res);
+          setError("");
+        }
+      } catch (e) {
+        if (!cancelled) {
+          console.error("Failed to load leaderboard", e);
+          setUsers([]);
+          setError("Could not load leaderboard.");
+        }
+      }
     })();
     return () => { cancelled = true; };
   }, []);
@@ -22,8 +34,15 @@ export default function LeaderboardPage() {
         <p className="text-muted-foreground">Top contributors this month</p>
       </header>
 
+      {users === null ? (
+        <p className="text-center text-muted-foreground">Loading...</p>
+      ) : users.length === 0 ? (
+        <div className="text-center text-muted-foreground">
+          {error ? error : "No leaderboard entries yet."}
+        </div>
+      ) : (
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {(users ?? []).map((u, idx) => (
+        {users.map((u, idx) => (
           <motion.article
             key={(u.name || "user") + idx}
             initial={{ opacity: 0, y: 12 }}
@@ -49,9 +68,6 @@ export default function LeaderboardPage() {
           </motion.article>
         ))}
       </div>
-
-      {users === null && (
-        <p className="text-center text-muted-foreground">Loading...</p>
       )}
     </main>
   );
