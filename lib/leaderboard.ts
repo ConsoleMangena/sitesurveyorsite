@@ -59,8 +59,24 @@ export async function getTopUsers(limit = 6): Promise<LeaderUser[]> {
       Query.limit(limit),
     ]);
     return res.documents.map(mapDoc);
-  } catch {
-    return [];
+  } catch (e) {
+    // Fallback if "score" is not indexed: try createdAt ordering, then unsorted
+    try {
+      const res = await databases.listDocuments<Models.Document>(DB_ID, COLLECTION_ID, [
+        Query.orderDesc("$createdAt"),
+        Query.limit(limit),
+      ]);
+      return res.documents.map(mapDoc);
+    } catch {
+      try {
+        const res = await databases.listDocuments<Models.Document>(DB_ID, COLLECTION_ID, [
+          Query.limit(limit),
+        ]);
+        return res.documents.map(mapDoc);
+      } catch {
+        return [];
+      }
+    }
   }
 }
 
@@ -72,7 +88,22 @@ export async function getAllUsers(limit = 60): Promise<LeaderUser[]> {
       Query.limit(limit),
     ]);
     return res.documents.map(mapDoc);
-  } catch {
-    return [];
+  } catch (e) {
+    try {
+      const res = await databases.listDocuments<Models.Document>(DB_ID, COLLECTION_ID, [
+        Query.orderDesc("$createdAt"),
+        Query.limit(limit),
+      ]);
+      return res.documents.map(mapDoc);
+    } catch {
+      try {
+        const res = await databases.listDocuments<Models.Document>(DB_ID, COLLECTION_ID, [
+          Query.limit(limit),
+        ]);
+        return res.documents.map(mapDoc);
+      } catch {
+        return [];
+      }
+    }
   }
 }
