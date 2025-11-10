@@ -107,13 +107,13 @@ export default function Hero() {
           className="flex flex-col justify-center items-center space-y-5 max-w-4xl mx-auto text-center"
         >
           <span className="w-fit h-full text-sm bg-card px-2 py-1 border border-border rounded-full">
-            Efficient & Lightweight
+            Efficient • Lightweight • Cross‑platform
           </span>
           <h1 className="text-3xl font-medium tracking-tighter mx-auto md:text-4xl text-pretty bg-linear-to-b from-sky-800 dark:from-sky-100 to-foreground dark:to-foreground bg-clip-text text-transparent">
-            Efficient, lightweight geomatics and planning software
+            Cross‑platform geomatics and planning software
           </h1>
           <p className="max-w-2xl text-lg mx-auto text-muted-foreground text-balance">
-            Efficient, lightweight geomatics and planning software.
+            SiteSurveyor helps surveyors collect, process, present and disseminate, manage, and store geospatial data—delivering advanced, professional features that are efficient, lightweight, and affordable. Available on desktop and mobile.
           </p>
           <motion.div
             whileHover={{ scale: 1.05 }}

@@ -9,8 +9,8 @@ const geist = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "SiteSurveyor — Efficient, Lightweight Geomatics & Planning Software",
-  description: "Efficient, lightweight geomatics and planning software.",
+  title: "SiteSurveyor — Cross‑platform Geomatics & Planning Software",
+  description: "Efficient, lightweight software to collect, process, present and disseminate, manage and store geospatial data. Advanced, professional, affordable — available on desktop and mobile.",
   icons: {
     icon: '/logo.svg',
   },

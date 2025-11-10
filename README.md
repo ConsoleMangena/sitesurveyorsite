@@ -1,6 +1,6 @@
 # SiteSurveyor
 
-Affordable geomatics software for land surveying, GPS tracking, and mapping.
+Efficient, lightweight, cross-platform geomatics and planning software for surveyors to collect, process, present and disseminate, manage, and store geospatial data. Advanced, professional features at an affordable price — available on desktop and mobile.
 
 ## 🚀 Deployed Site
 
@@ -37,11 +37,11 @@ npm run build
 
 ## ✨ Features
 
-- ✅ Appwrite authentication with user registration
-- ✅ Comprehensive user profiles (organization, type, location)
-- ✅ Animated background on homepage
-- ✅ Responsive design with dark/light mode
-- ✅ Zimbabwean localization (placeholders)
+- ✅ Appwrite authentication with user registration and GitHub OAuth
+- ✅ End-to-end data lifecycle: collection, processing, presentation/dissemination, management, and storage
+- ✅ Cross-platform: desktop and mobile-friendly experience
+- ✅ Efficient, lightweight UI with dark/light mode
+- ✅ Animated, responsive landing experience
 - ✅ GitHub Pages deployment
 
 ## 📝 User Registration Fields
