@@ -29,7 +29,15 @@ export default function NavBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, logout, loading } = useAuth();
 
-  const menuItems: { name: string; href: string }[] = [];
+  const menuItems: { name: string; href: string }[] = [
+    { name: "About", href: "/about" },
+    { name: "Downloads", href: "/downloads" },
+    { name: "Documentation", href: "/documentation" },
+    { name: "Community", href: "/community" },
+    { name: "Success Stories", href: "/success-stories" },
+    { name: "News", href: "/news" },
+    { name: "Events", href: "/events" },
+  ];
 
   return (
     <nav className="sticky top-0 z-50 w-full backdrop-blur supports-[backdrop-filter]:bg-background/60">
