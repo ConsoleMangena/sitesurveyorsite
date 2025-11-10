@@ -150,7 +150,19 @@
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
+  html {
+    @apply scroll-smooth;
   }
+  body {
+    @apply bg-background text-foreground overflow-x-hidden;
+  }
+  /* Ensure media scale down on small screens */
+  img, video, canvas, svg {
+    max-width: 100%;
+    height: auto;
+  }
+  /* Responsive default headings (can be overridden per-page) */
+  h1 { @apply text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight; }
+  h2 { @apply text-xl sm:text-2xl md:text-3xl font-semibold; }
+  h3 { @apply text-lg sm:text-xl md:text-2xl font-medium; }
 }
