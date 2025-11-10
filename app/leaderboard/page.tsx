@@ -36,7 +36,10 @@ export default function LeaderboardPage() {
               <div className="min-w-0">
                 <h3 className="font-medium truncate">{u.name}</h3>
                 <p className="text-xs text-muted-foreground truncate">{[u.organization, u.role].filter(Boolean).join(" • ")}</p>
-                <p className="text-xs text-muted-foreground truncate">{[u.city, u.country].filter(Boolean).join(", ")}</p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {u.city}
+                  {u.location ? ` • ${u.location.lat?.toFixed(3)}, ${u.location.lng?.toFixed(3)}` : ''}
+                </p>
               </div>
               <div className="text-right">
                 <div className="text-lg font-semibold">{u.score ?? "-"}</div>

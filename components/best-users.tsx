@@ -7,9 +7,9 @@ import { getTopUsers, LeaderUser } from "@/lib/leaderboard";
 type User = LeaderUser & { stats?: { projects?: number; datasets?: number; score?: number } };
 
 const placeholder: User[] = [
-  { name: "Tendai Moyo", organization: "Harare Surveys", role: "Professional", city: "Harare", country: "Zimbabwe", projects: 12, datasets: 24, score: 98 },
-  { name: "Rudo Chikore", organization: "Midlands Geo", role: "Researcher", city: "Gweru", country: "Zimbabwe", projects: 9, datasets: 18, score: 94 },
-  { name: "Kuda Ncube", organization: "Bulawayo Mapping", role: "Professional", city: "Bulawayo", country: "Zimbabwe", projects: 10, datasets: 21, score: 92 },
+  { name: "Tendai Moyo", organization: "Harare Surveys", role: "Professional", city: "Harare", projects: 12, datasets: 24, score: 98 },
+  { name: "Rudo Chikore", organization: "Midlands Geo", role: "Researcher", city: "Gweru", projects: 9, datasets: 18, score: 94 },
+  { name: "Kuda Ncube", organization: "Bulawayo Mapping", role: "Professional", city: "Bulawayo", projects: 10, datasets: 21, score: 92 },
 ];
 
 function Avatar({ name, src }: { name: string; src?: string }) {
@@ -83,7 +83,8 @@ export default function BestUsers() {
                     {u.organization} {u.role ? '• ' + u.role : ''}
                   </p>
                   <p className="text-xs text-muted-foreground truncate">
-                    {u.city}{u.city && u.country ? ', ' : ''}{u.country}
+                    {u.city}
+                    {u.location ? ` • ${u.location.lat.toFixed(3)}, ${u.location.lng.toFixed(3)}` : ''}
                   </p>
                 </div>
               </div>
