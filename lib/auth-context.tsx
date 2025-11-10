@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { account } from "./appwrite";
-import { Models } from "appwrite";
+import { Models, OAuthProvider } from "appwrite";
 
 interface UserProfile {
   username?: string;
@@ -18,6 +18,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string, profile: UserProfile) => Promise<void>;
   logout: () => Promise<void>;
+  loginWithGithub: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -54,13 +55,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await checkUser();
   }
 
+  async function loginWithGithub() {
+    // Redirect-based OAuth flow; ensure these URLs are allowed in Appwrite redirect URLs
+    const successUrl = typeof window !== 'undefined' ? `${window.location.origin}/` : undefined;
+    const failureUrl = typeof window !== 'undefined' ? `${window.location.origin}/login/` : undefined;
+    await account.createOAuth2Session(OAuthProvider.Github, successUrl, failureUrl);
+  }
+
   async function logout() {
     await account.deleteSession("current");
     setUser(null);
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, loginWithGithub }}>
       {children}
     </AuthContext.Provider>
   );

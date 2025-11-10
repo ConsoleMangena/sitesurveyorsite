@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { GitHubLogoIcon } from "@radix-ui/react-icons";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -21,7 +22,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   
-  const { login, register, user } = useAuth();
+  const { login, register, user, loginWithGithub } = useAuth();
   const router = useRouter();
 
   // Redirect if already logged in
@@ -77,6 +78,16 @@ export default function LoginPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            <div className="space-y-3 mb-4">
+              <Button type="button" variant="outline" className="w-full" onClick={() => loginWithGithub()} disabled={loading}>
+                <GitHubLogoIcon className="mr-2 h-4 w-4" />
+                Continue with GitHub
+              </Button>
+              <div className="relative text-center text-sm text-muted-foreground">
+                <span className="bg-background px-2 relative z-10">or</span>
+                <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 border-t" />
+              </div>
+            </div>
             <form onSubmit={handleSubmit} className="space-y-4">
               {isRegistering && (
                 <>
