@@ -22,15 +22,32 @@ import {
 } from "@radix-ui/react-icons";
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/auth-context";
+import { fetchUnreadCount } from "@/lib/notifications";
 
 export default function NavBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, logout, loading } = useAuth();
   const pathname = usePathname();
+  const [unreadCount, setUnreadCount] = useState<number>(0);
+  const [notifDismissed, setNotifDismissed] = useState<boolean>(false);
+
+  // Load dismissed state and fetch count when user changes
+  useEffect(() => {
+    setNotifDismissed(() => {
+      try { return sessionStorage.getItem("notif_bar_dismissed") === "1"; } catch { return false; }
+    });
+    let cancelled = false;
+    (async () => {
+      if (!user) { setUnreadCount(0); return; }
+      const count = await fetchUnreadCount(user.$id);
+      if (!cancelled) setUnreadCount(count);
+    })();
+    return () => { cancelled = true; };
+  }, [user]);
 
   const menuItems: { name: string; href: string }[] = [
     { name: "About", href: "/about" },
@@ -44,16 +61,28 @@ export default function NavBar() {
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border/80 shadow-sm relative">
-      {user && (
+      {user && unreadCount > 0 && !notifDismissed && (
         <div className="w-full bg-sky-500/10 border-b border-sky-500/20 text-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-1.5 flex items-center justify-between">
             <div className="flex items-center gap-2 text-sky-700 dark:text-sky-300">
               <BellIcon className="h-4 w-4" />
-              <span className="hidden sm:inline">You have notifications</span>
+              <span className="hidden sm:inline">{unreadCount}+ new notification{unreadCount > 1 ? 's' : ''}</span>
             </div>
-            <Link href="/notifications" className="text-sky-700 dark:text-sky-300 hover:underline underline-offset-4">
-              View notifications
-            </Link>
+            <div className="flex items-center gap-3">
+              <Link href="/notifications" className="text-sky-700 dark:text-sky-300 hover:underline underline-offset-4">
+                View
+              </Link>
+              <button
+                aria-label="Dismiss notification bar"
+                className="text-sky-700/70 hover:text-sky-700 dark:text-sky-300/70 dark:hover:text-sky-300"
+                onClick={() => {
+                  setNotifDismissed(true);
+                  try { sessionStorage.setItem("notif_bar_dismissed", "1"); } catch {}
+                }}
+              >
+                ✕
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -123,6 +152,10 @@ export default function NavBar() {
                         <span className="font-medium">{user.name}</span>
                         <span className="text-xs text-muted-foreground">{user.email}</span>
                       </div>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/settings/profile">Profile Settings</Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => logout()}>
