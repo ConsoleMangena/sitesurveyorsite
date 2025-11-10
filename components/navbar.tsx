@@ -67,6 +67,17 @@ export default function NavBar() {
             <Link href="/" className="flex items-center">
               <Image src="/logo.svg" alt="SiteSurveyor" width={40} height={40} />
             </Link>
+            <nav className="hidden md:flex items-center space-x-2 ml-4">
+              {menuItems.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className="text-sm text-foreground/80 hover:text-foreground hover:underline underline-offset-4"
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </nav>
           </div>
           <div className="flex items-center space-x-4">
             {!loading && (
