@@ -42,7 +42,7 @@ export default function NavBar() {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 w-full backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav className="sticky top-0 z-50 w-full bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border/80 shadow-sm relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex sm:hidden">
@@ -69,7 +69,7 @@ export default function NavBar() {
             <Link href="/" className="flex items-center">
               <Image src="/logo.svg" alt="SiteSurveyor" width={40} height={40} />
             </Link>
-            <nav className="hidden md:flex items-center space-x-2 ml-4">
+            <nav className="hidden md:flex items-center space-x-1 ml-4">
               {menuItems.map((item) => {
                 const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
                 return (
@@ -77,10 +77,10 @@ export default function NavBar() {
                     key={item.name}
                     href={item.href}
                     className={
-                      `text-sm underline-offset-4 ${
+                      `group relative text-sm px-3 py-1 rounded-md transition-colors after:content-[""] after:absolute after:left-3 after:right-3 after:-bottom-0.5 after:h-0.5 after:bg-gradient-to-r after:from-sky-500/80 after:to-cyan-500/80 after:rounded-full after:transition-transform after:duration-300 after:origin-left ${
                         isActive
-                          ? "text-foreground underline"
-                          : "text-foreground/80 hover:text-foreground hover:underline"
+                          ? "text-foreground bg-accent/50 after:scale-x-100"
+                          : "text-foreground/80 hover:text-foreground hover:bg-accent/50 after:scale-x-0 group-hover:after:scale-x-100"
                       }`
                     }
                   >
@@ -91,6 +91,9 @@ export default function NavBar() {
             </nav>
           </div>
           <div className="flex items-center space-x-4">
+            <Button asChild size="sm" className="hidden md:inline-flex">
+              <Link href="/downloads">Download</Link>
+            </Button>
             {!loading && (
               user ? (
                 <DropdownMenu>
@@ -168,6 +171,7 @@ export default function NavBar() {
           )}
         </AnimatePresence>
       </div>
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-sky-500/30 to-transparent" />
     </nav>
   );
 }
