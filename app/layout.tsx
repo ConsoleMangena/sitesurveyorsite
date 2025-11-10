@@ -35,6 +35,10 @@ export default function RootLayout({
           data-domain="saas.gonzalochale.dev"
           src="https://plausible.gonzalochale.dev/js/script.outbound-links.js"
         ></script>
+        {/* Reduce HTML caching to avoid stale chunk references after deployments */}
+        <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+        <meta httpEquiv="Pragma" content="no-cache" />
+        <meta httpEquiv="Expires" content="0" />
       </head>
       <body className={`${geist.className} antialiased`}>
         <Providers>
