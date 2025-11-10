@@ -22,6 +22,16 @@ const Footer = () => {
     },
   ];
 
+  const footerLinks: { name: string; href: string }[] = [
+    { name: "About", href: "/about" },
+    { name: "Downloads", href: "/downloads" },
+    { name: "Documentation", href: "/documentation" },
+    { name: "Community", href: "/community" },
+    { name: "Success Stories", href: "/success-stories" },
+    { name: "News", href: "/news" },
+    { name: "Events", href: "/events" },
+  ];
+
   return (
     <footer className="w-full bg-card border-t">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -40,6 +50,14 @@ const Footer = () => {
               © {year} SiteSurveyor. All rights reserved.
             </span>
           </div>
+
+          <nav className="flex flex-wrap justify-center md:justify-center gap-4 text-sm text-muted-foreground">
+            {footerLinks.map((link) => (
+              <Link key={link.name} href={link.href} className="hover:underline underline-offset-4">
+                {link.name}
+              </Link>
+            ))}
+          </nav>
 
           <div className="flex space-x-2">
             {socialLinks.map((social) => (

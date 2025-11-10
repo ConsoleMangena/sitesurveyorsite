@@ -22,12 +22,14 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/auth-context";
 
 export default function NavBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, logout, loading } = useAuth();
+  const pathname = usePathname();
 
   const menuItems: { name: string; href: string }[] = [
     { name: "About", href: "/about" },
@@ -68,15 +70,24 @@ export default function NavBar() {
               <Image src="/logo.svg" alt="SiteSurveyor" width={40} height={40} />
             </Link>
             <nav className="hidden md:flex items-center space-x-2 ml-4">
-              {menuItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="text-sm text-foreground/80 hover:text-foreground hover:underline underline-offset-4"
-                >
-                  {item.name}
-                </Link>
-              ))}
+              {menuItems.map((item) => {
+                const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={
+                      `text-sm underline-offset-4 ${
+                        isActive
+                          ? "text-foreground underline"
+                          : "text-foreground/80 hover:text-foreground hover:underline"
+                      }`
+                    }
+                  >
+                    {item.name}
+                  </Link>
+                );
+              })}
             </nav>
           </div>
           <div className="flex items-center space-x-4">
@@ -138,13 +149,18 @@ export default function NavBar() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.3, delay: 0.2 + index * 0.1 }}
                   >
-                    <Link
-                      href={item.href}
-                      className="block px-3 py-2 text-base font-medium text-foreground hover:bg-muted rounded-md transition-colors duration-200"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      {item.name}
-                    </Link>
+                    {(() => {
+                      const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+                      return (
+                        <Link
+                          href={item.href}
+                          className={`block px-3 py-2 text-base font-medium rounded-md transition-colors duration-200 ${isActive ? "bg-muted text-foreground" : "text-foreground hover:bg-muted"}`}
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          {item.name}
+                        </Link>
+                      );
+                    })()}
                   </motion.div>
                 ))}
               </motion.div>
