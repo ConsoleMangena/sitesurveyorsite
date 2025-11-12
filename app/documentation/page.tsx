@@ -56,31 +56,11 @@ export default function DocumentationPage() {
               <li>Keep multiple versions—archives are available in past releases.</li>
             </ul>
           </div>
-          <div className="space-y-2">
-            <h3 className="font-medium">Backend (Appwrite)</h3>
-            <ul className="list-disc pl-5 space-y-1 text-muted-foreground text-sm">
-              <li>Set environment variables (e.g., in <code>.env.local</code> or hosting secrets):</li>
-              <li className="pl-5">NEXT_PUBLIC_APPWRITE_ENDPOINT</li>
-              <li className="pl-5">NEXT_PUBLIC_APPWRITE_PROJECT_ID</li>
-              <li className="pl-5">NEXT_PUBLIC_APPWRITE_DATABASE_ID</li>
-              <li className="pl-5">NEXT_PUBLIC_APPWRITE_NOTIFICATIONS_COLLECTION_ID</li>
-              <li>GitHub OAuth: add allowed redirect URLs in Appwrite → OAuth {" "}
-                <span className="text-xs">(e.g., <code>https://your-domain/</code> and <code>https://your-domain/login/</code>)</span>.</li>
-            </ul>
-          </div>
         </div>
       </section>
 
       {/* Using SiteSurveyor */}
       <div className="grid md:grid-cols-2 gap-6">
-        <section className="space-y-2">
-          <h2 className="text-lg font-medium">Data collection</h2>
-          <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
-            <li>Prepare forms and required fields for field practicals.</li>
-            <li>Capture points/lines on mobile; review on desktop.</li>
-            <li>Sync preferences and profile info from Settings → Profile.</li>
-          </ul>
-        </section>
         <section className="space-y-2">
           <h2 className="text-lg font-medium">Processing & QA</h2>
           <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
