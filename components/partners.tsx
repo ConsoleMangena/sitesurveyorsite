@@ -8,8 +8,58 @@ import {
 } from "@/components/ui/tooltip";
 
 export default function Partners() {
-  // svg icons provided by https://svgl.app/
+  // Development tools used
   const icons = [
+    {
+      name: "C++",
+      svg: (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="32" height="32">
+          <rect x="5" y="5" width="110" height="110" rx="12" fill="#00599C" />
+          <text x="50%" y="55%" dominantBaseline="middle" textAnchor="middle" fontFamily="Arial, Helvetica, sans-serif" fontWeight="bold" fontSize="36" fill="#fff">C++</text>
+        </svg>
+      ),
+    },
+    {
+      name: "TypeScript",
+      svg: (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="32" height="32">
+          <rect x="5" y="5" width="110" height="110" rx="12" fill="#3178C6" />
+          <text x="50%" y="55%" dominantBaseline="middle" textAnchor="middle" fontFamily="Arial, Helvetica, sans-serif" fontWeight="bold" fontSize="30" fill="#fff">TS</text>
+        </svg>
+      ),
+    },
+    {
+      name: "Next.js",
+      svg: (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="32" height="32">
+          <rect x="5" y="5" width="110" height="110" rx="12" fill="#000" />
+          <text x="50%" y="55%" dominantBaseline="middle" textAnchor="middle" fontFamily="Arial, Helvetica, sans-serif" fontWeight="bold" fontSize="28" fill="#fff">Next</text>
+        </svg>
+      ),
+    },
+    {
+      name: "Tailwind CSS",
+      svg: (
+        <svg viewBox="0 0 256 154" width="32" height="32" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid">
+          <defs>
+            <linearGradient x1="-2.778%" y1="32%" x2="100%" y2="67.556%" id="gradient">
+              <stop stopColor="#2298BD" offset="0%"></stop>
+              <stop stopColor="#0ED7B5" offset="100%"></stop>
+            </linearGradient>
+          </defs>
+          <path d="M128 0C93.867 0 72.533 17.067 64 51.2 76.8 34.133 91.733 27.733 108.8 32c9.737 2.434 16.697 9.499 24.401 17.318C145.751 62.057 160.275 76.8 192 76.8c34.133 0 55.467-17.067 64-51.2-12.8 17.067-27.733 23.467-44.8 19.2-9.737-2.434-16.697-9.499-24.401-17.318C174.249 14.743 159.725 0 128 0ZM64 76.8C29.867 76.8 8.533 93.867 0 128c12.8-17.067 27.733-23.467 44.8-19.2 9.737 2.434 16.697 9.499 24.401 17.318C81.751 138.857 96.275 153.6 128 153.6c34.133 0 55.467-17.067 64-51.2-12.8 17.067-27.733 23.467-44.8 19.2-9.737-2.434-16.697-9.499-24.401-17.318C110.249 91.543 95.725 76.8 64 76.8Z" fill="url(#gradient)"></path>
+        </svg>
+      ),
+    },
+    {
+      name: "Appwrite",
+      svg: (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="32" height="32">
+          <rect x="5" y="5" width="110" height="110" rx="12" fill="#F02E65" />
+          <text x="50%" y="55%" dominantBaseline="middle" textAnchor="middle" fontFamily="Arial, Helvetica, sans-serif" fontWeight="bold" fontSize="22" fill="#fff">Appwrite</text>
+        </svg>
+      ),
+    },
     {
       name: "Docker",
       svg: (
@@ -211,7 +261,7 @@ export default function Partners() {
         className="flex flex-col gap-3"
       >
         <h2 className="text-xl font-semibold sm:text-2xl bg-linear-to-b from-foreground to-muted-foreground text-transparent bg-clip-text">
-          Our Partners
+          Development tools we use
         </h2>
       </motion.div>
       <div className="w-full grid grid-cols-3 sm:grid-cols-6 grid-rows-3 sm:grid-rows-1 gap-5 place-items-center">
@@ -219,23 +269,25 @@ export default function Partners() {
           {icons.map((icon, index) => (
             <Tooltip key={icon.name}>
               <TooltipTrigger asChild>
-                <motion.div
-                  initial={{ y: 20, opacity: 0, filter: "blur(3px)" }}
-                  whileInView={{
-                    y: 0,
-                    filter: "blur(0px)",
-                    opacity: 1,
-                  }}
-                  viewport={{ once: true }}
-                  transition={{
-                    duration: 1,
-                    delay: index * 0.1,
-                    type: "spring",
-                    bounce: 0,
-                  }}
-                >
-                  {icon.svg}
-                </motion.div>
+                <a href="https://github.com/ConsoleMangena/sitesurveyor" target="_blank" rel="noopener noreferrer">
+                  <motion.div
+                    initial={{ y: 20, opacity: 0, filter: "blur(3px)" }}
+                    whileInView={{
+                      y: 0,
+                      filter: "blur(0px)",
+                      opacity: 1,
+                    }}
+                    viewport={{ once: true }}
+                    transition={{
+                      duration: 1,
+                      delay: index * 0.1,
+                      type: "spring",
+                      bounce: 0,
+                    }}
+                  >
+                    {icon.svg}
+                  </motion.div>
+                </a>
               </TooltipTrigger>
               <TooltipContent>{icon.name}</TooltipContent>
             </Tooltip>

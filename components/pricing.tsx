@@ -9,41 +9,45 @@ import { CheckIcon } from "@radix-ui/react-icons";
 export default function Pricing() {
   const plans = [
     {
-      name: "Hobby Plan",
-      desc: "Perfect for getting started",
+      name: "Student Plan (Free)",
+      desc: "$0 — free for students; core features to get started",
       price: 0,
       isMostPop: false,
       features: [
-        "Make the best schedule",
-        "Support your team",
-        "Basic analytics",
+        "Basic features",
+        "Community support",
+        "Open-source access on GitHub",
       ],
+      ctaHref: "https://github.com/ConsoleMangena/sitesurveyor/releases/latest",
+      ctaText: "Get Started Free",
     },
     {
       name: "Pro Plan",
-      desc: "Best for growing teams",
-      price: 29,
+      desc: "$3.00/month — advanced tools for individuals and teams",
+      price: 3,
       isMostPop: true,
       features: [
-        "Everything in Hobby",
-        "Advanced team features",
+        "Everything in Free",
+        "Advanced AI tools",
         "Priority support",
-        "Video calls",
         "Custom integrations",
       ],
+      ctaHref: "https://github.com/ConsoleMangena/sitesurveyor",
+      ctaText: "Choose Pro",
     },
     {
       name: "Enterprise Plan",
-      desc: "For large organizations",
-      price: 99,
+      desc: "Find the proper enterprise pricing for your organization",
+      price: 0,
       isMostPop: false,
       features: [
         "Everything in Pro",
-        "Advanced security",
+        "Advanced security & compliance",
         "Custom branding",
-        "Dedicated support",
-        "SLA guarantee",
+        "Dedicated support & SLA",
       ],
+      ctaHref: "https://github.com/ConsoleMangena/sitesurveyorsite/issues/new?labels=enterprise&title=Enterprise%20Inquiry&body=Organization%20name%3A%0AUse%20case%3A%0ASeats%3A%0A",
+      ctaText: "Contact us",
     },
   ];
 
@@ -98,8 +102,14 @@ export default function Pricing() {
                     {plan.desc}
                   </p>
                   <div className="flex items-baseline justify-center">
-                    <span className="text-4xl font-bold">${plan.price}</span>
-                    <span className="text-muted-foreground ml-1">/month</span>
+                    {plan.name === "Enterprise Plan" ? (
+                      <span className="text-4xl font-bold">Custom</span>
+                    ) : (
+                      <>
+                        <span className="text-4xl font-bold">${plan.price}</span>
+                        <span className="text-muted-foreground ml-1">/month</span>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -120,11 +130,14 @@ export default function Pricing() {
 
               <CardFooter className="p-6 pt-0">
                 <Button
+                  asChild
                   className="w-full"
                   variant={plan.isMostPop ? "default" : "outline"}
                   size="lg"
                 >
-                  {plan.price === 0 ? "Get Started Free" : "Choose Plan"}
+                  <a href={plan.ctaHref} target="_blank" rel="noopener noreferrer">
+                    {plan.ctaText}
+                  </a>
                 </Button>
               </CardFooter>
             </Card>

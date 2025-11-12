@@ -4,83 +4,27 @@ import { motion } from "framer-motion";
 export default function Testimonials() {
   const testimonials = [
     {
-      name: "Sarah Chen",
-      role: "CEO at TechStart",
-      avatar: "https://i.pravatar.cc/150?img=1",
+      name: "Tendai Moyo",
+      role: "Student — University of Zimbabwe",
+      avatar: "https://i.pravatar.cc/150?img=31",
       content:
-        "This platform has transformed how we manage our business. The analytics features alone have saved us countless hours and improved our decision-making process significantly.",
+        "As a surveying student, SiteSurveyor’s free plan covered my core needs. I could collect field data and share results quickly.",
       rating: 5,
     },
     {
-      name: "Marcus Rodriguez",
-      role: "Product Manager at Scale Co",
-      avatar: "https://i.pravatar.cc/150?img=3",
+      name: "Nyasha Chikowore",
+      role: "Student — National University of Science and Technology",
+      avatar: "https://i.pravatar.cc/150?img=32",
       content:
-        "The integration capabilities are outstanding. We were able to connect all our existing tools seamlessly. The customer support team is also incredibly responsive and helpful.",
+        "The workflow felt familiar on desktop and mobile. I also explored the code on GitHub to understand how things work.",
       rating: 5,
     },
     {
-      name: "Emma Thompson",
-      role: "CTO at DataFlow",
-      avatar: "https://i.pravatar.cc/150?img=5",
+      name: "Tariro Dube",
+      role: "Student — Harare Institute of Technology",
+      avatar: "https://i.pravatar.cc/150?img=33",
       content:
-        "Security was our main concern when choosing a platform, and this solution exceeded our expectations. The encryption and compliance features give us complete peace of mind.",
-      rating: 5,
-    },
-    {
-      name: "Robert Taylor",
-      role: "CTO at FinanceFlow",
-      avatar: "https://i.pravatar.cc/150?img=15",
-      content:
-        "Security and compliance are critical in our industry. This platform not only meets but exceeds all our regulatory requirements.",
-      rating: 5,
-    },
-    {
-      name: "Maria Garcia",
-      role: "Director of Operations at StreamlineOps",
-      avatar: "https://i.pravatar.cc/150?img=17",
-      content:
-        "The customer support is phenomenal. Every question gets answered quickly and thoroughly. It's like having an extended team member.",
-      rating: 5,
-    },
-    {
-      name: "Kevin Lee",
-      role: "Founder at NextGen Solutions",
-      avatar: "https://i.pravatar.cc/150?img=19",
-      content:
-        "We've tried many platforms, but this one stands out for its reliability and performance. Zero downtime in 18 months of usage.",
-      rating: 5,
-    },
-    {
-      name: "Sophie Anderson",
-      role: "Product Lead at InnovateLab",
-      avatar: "https://i.pravatar.cc/150?img=21",
-      content:
-        "The analytics dashboard gives us insights we never had before. Data-driven decisions have become our competitive advantage.",
-      rating: 5,
-    },
-    {
-      name: "James Wilson",
-      role: "Engineering Manager at TechBridge",
-      avatar: "https://i.pravatar.cc/150?img=23",
-      content:
-        "Migration was seamless and the onboarding process was exceptional. Our team was productive from day one.",
-      rating: 5,
-    },
-    {
-      name: "Elena Petrov",
-      role: "CEO at GrowthMetrics",
-      avatar: "https://i.pravatar.cc/150?img=25",
-      content:
-        "The platform scales beautifully with our business. From startup to enterprise, it has grown with us every step of the way.",
-      rating: 5,
-    },
-    {
-      name: "Michael Chang",
-      role: "Head of Product at DataDriven",
-      avatar: "https://i.pravatar.cc/150?img=27",
-      content:
-        "Real-time collaboration features have transformed how our remote team works together. Productivity has increased dramatically.",
+        "Upgrading to Pro for the AI tools made QA faster for my project. It’s great to see an affordable option for students.",
       rating: 5,
     },
   ];
