@@ -23,8 +23,8 @@ export default function Pricing() {
     },
     {
       name: "Pro Plan",
-      desc: "$3.00/month — advanced tools for individuals and teams",
-      price: 3,
+      desc: "$25.00/month — advanced tools for individuals and teams",
+      price: 25,
       isMostPop: true,
       features: [
         "Everything in Free",
