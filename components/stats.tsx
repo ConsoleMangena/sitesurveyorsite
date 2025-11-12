@@ -6,7 +6,7 @@ export default function Stats() {
     { number: "50K+", label: "Active Users" },
     { number: "99.9%", label: "Uptime" },
     { number: "500M+", label: "API Calls" },
-    { number: "150+", label: "Countries" },
+    { number: "150+", label: "Contributors" },
   ];
 
   return (
@@ -26,14 +26,31 @@ export default function Stats() {
               }}
               className="text-center"
             >
-              <div className="text-3xl md:text-4xl font-bold mb-2">
-                {stat.number}
-              </div>
-              <div className="text-sm text-muted-foreground font-medium">
-                {stat.label}
-              </div>
+              <a
+                href="https://github.com/ConsoleMangena/sitesurveyor"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block hover:opacity-90 transition-opacity"
+              >
+                <div className="text-3xl md:text-4xl font-bold mb-2">
+                  {stat.number}
+                </div>
+                <div className="text-sm text-muted-foreground font-medium">
+                  {stat.label}
+                </div>
+              </a>
             </motion.div>
           ))}
+        </div>
+        <div className="text-center mt-6">
+          <a
+            href="https://github.com/ConsoleMangena/sitesurveyor"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm underline underline-offset-4 text-muted-foreground hover:text-foreground"
+          >
+            View repository on GitHub
+          </a>
         </div>
       </div>
     </section>

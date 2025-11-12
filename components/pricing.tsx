@@ -43,7 +43,6 @@ export default function Pricing() {
       features: [
         "Everything in Pro",
         "Advanced security & compliance",
-        "Custom branding",
         "Dedicated support & SLA",
       ],
       ctaHref: "https://github.com/ConsoleMangena/sitesurveyorsite/issues/new?labels=enterprise&title=Enterprise%20Inquiry&body=Organization%20name%3A%0AUse%20case%3A%0ASeats%3A%0A",
@@ -52,10 +51,11 @@ export default function Pricing() {
   ];
 
   return (
-    <section
-      id="pricing"
-      className="w-full max-w-7xl mx-auto px-4 py-24 md:px-6"
-    >
+    <>
+      <section
+        id="pricing"
+        className="w-full max-w-7xl mx-auto px-4 py-24 md:px-6"
+      >
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         whileInView={{ y: 0, opacity: 1 }}
@@ -145,5 +145,11 @@ export default function Pricing() {
         ))}
       </div>
     </section>
+
+    <p className="text-center text-sm text-muted-foreground mt-6">
+      SiteSurveyor is open source — view the code on
+      {' '}<a className="underline underline-offset-4" href="https://github.com/ConsoleMangena/sitesurveyor" target="_blank" rel="noopener noreferrer">GitHub</a>.
+    </p>
+    </>
   );
 }
