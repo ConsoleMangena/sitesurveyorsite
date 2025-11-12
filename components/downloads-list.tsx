@@ -74,6 +74,7 @@ export default function DownloadsList() {
   const [releases, setReleases] = useState<Release[] | null>(null);
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
+  const [osTab, setOsTab] = useState<Record<number, "windows" | "debian">>({});
 
   useEffect(() => {
     let cancelled = false;
@@ -179,73 +180,61 @@ export default function DownloadsList() {
 
                 {rel.assets && rel.assets.length > 0 ? (
                   (() => {
-                    const { windows, debian, others } = categorizeAssets(rel.assets);
+                    const { windows, debian } = categorizeAssets(rel.assets);
+                    if (windows.length === 0 && debian.length === 0) {
+                      return (
+                        <p className="mt-4 text-sm text-muted-foreground">No Windows or Debian assets. See release notes.</p>
+                      );
+                    }
+                    const current = osTab[rel.id] ?? (windows.length > 0 ? "windows" : "debian");
+                    if (osTab[rel.id] === undefined) {
+                      // initialize default for this release id
+                      setTimeout(() => setOsTab((m) => ({ ...m, [rel.id]: current })), 0);
+                    }
+                    const list = current === "windows" ? windows : debian;
                     return (
-                      <div className="mt-4 space-y-4">
-                        {windows.length > 0 && (
-                          <div>
-                            <h4 className="text-sm font-medium flex items-center gap-2">
+                      <div className="mt-4 space-y-3">
+                        <div className="inline-flex items-center rounded-md border p-1 bg-card">
+                          {windows.length > 0 && (
+                            <button
+                              type="button"
+                              className={`flex items-center gap-2 px-3 py-1 text-sm rounded ${
+                                current === "windows" ? "bg-secondary" : "hover:bg-accent"
+                              }`}
+                              onClick={() => setOsTab((m) => ({ ...m, [rel.id]: "windows" }))}
+                              aria-pressed={current === "windows"}
+                            >
                               <WindowsLogo className="h-4 w-4 text-sky-600" /> Windows
-                            </h4>
-                            <ul className="mt-2 space-y-2">
-                              {windows.map((a) => (
-                                <li key={a.id} className="flex items-center justify-between gap-3">
-                                  <span className="text-sm text-muted-foreground truncate" title={a.name}>
-                                    {a.name}
-                                    {a.size ? <span className="ml-2 text-xs">({formatBytes(a.size)})</span> : null}
-                                  </span>
-                                  <Button asChild size="sm">
-                                    <a href={a.browser_download_url} target="_blank" rel="noopener noreferrer">
-                                      Download
-                                    </a>
-                                  </Button>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                        {debian.length > 0 && (
-                          <div>
-                            <h4 className="text-sm font-medium flex items-center gap-2">
+                            </button>
+                          )}
+                          {debian.length > 0 && (
+                            <button
+                              type="button"
+                              className={`flex items-center gap-2 px-3 py-1 text-sm rounded ${
+                                current === "debian" ? "bg-secondary" : "hover:bg-accent"
+                              }`}
+                              onClick={() => setOsTab((m) => ({ ...m, [rel.id]: "debian" }))}
+                              aria-pressed={current === "debian"}
+                            >
                               <LinuxLogo className="h-4 w-4 text-emerald-600" /> Debian/Ubuntu
-                            </h4>
-                            <ul className="mt-2 space-y-2">
-                              {debian.map((a) => (
-                                <li key={a.id} className="flex items-center justify-between gap-3">
-                                  <span className="text-sm text-muted-foreground truncate" title={a.name}>
-                                    {a.name}
-                                    {a.size ? <span className="ml-2 text-xs">({formatBytes(a.size)})</span> : null}
-                                  </span>
-                                  <Button asChild size="sm">
-                                    <a href={a.browser_download_url} target="_blank" rel="noopener noreferrer">
-                                      Download
-                                    </a>
-                                  </Button>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                        {others.length > 0 && (
-                          <div>
-                            <h4 className="text-sm font-medium">Other</h4>
-                            <ul className="mt-2 space-y-2">
-                              {others.map((a) => (
-                                <li key={a.id} className="flex items-center justify-between gap-3">
-                                  <span className="text-sm text-muted-foreground truncate" title={a.name}>
-                                    {a.name}
-                                    {a.size ? <span className="ml-2 text-xs">({formatBytes(a.size)})</span> : null}
-                                  </span>
-                                  <Button asChild size="sm">
-                                    <a href={a.browser_download_url} target="_blank" rel="noopener noreferrer">
-                                      Download
-                                    </a>
-                                  </Button>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
+                            </button>
+                          )}
+                        </div>
+                        <ul className="space-y-2">
+                          {list.map((a) => (
+                            <li key={a.id} className="flex items-center justify-between gap-3">
+                              <span className="text-sm text-muted-foreground truncate" title={a.name}>
+                                {a.name}
+                                {a.size ? <span className="ml-2 text-xs">({formatBytes(a.size)})</span> : null}
+                              </span>
+                              <Button asChild size="sm">
+                                <a href={a.browser_download_url} target="_blank" rel="noopener noreferrer">
+                                  Download
+                                </a>
+                              </Button>
+                            </li>
+                          ))}
+                        </ul>
                       </div>
                     );
                   })()
