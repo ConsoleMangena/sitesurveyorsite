@@ -37,6 +37,39 @@ function formatBytes(bytes?: number): string {
   return `${bytes} B`;
 }
 
+function WindowsLogo({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 448 512" className={className} aria-hidden>
+      <path fill="currentColor" d="M0 93.7L183.6 68.2v164.6H0V93.7zm0 324.6l183.6 25.6V281.6H0v136.7zM214.6 66.7L448 32v200.8H214.6V66.7zM448 480l-233.4-33.3V281.6H448V480z"/>
+    </svg>
+  );
+}
+
+function LinuxLogo({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 64 64" className={className} aria-hidden>
+      <path fill="currentColor" d="M32 4c7 0 10 6 10 12 0 6-3 10-3 14 0 4 3 6 6 10 3 5 3 10-1 12-3 2-8 1-12-2-4 3-9 4-12 2-4-2-4-7-1-12 3-4 6-6 6-10 0-4-3-8-3-14 0-6 3-12 10-12z"/>
+    </svg>
+  );
+}
+
+function categorizeAssets(assets: ReleaseAsset[]) {
+  const windows: ReleaseAsset[] = [];
+  const debian: ReleaseAsset[] = [];
+  const others: ReleaseAsset[] = [];
+  for (const a of assets || []) {
+    const n = a.name.toLowerCase();
+    if (/\.(exe|msi|zip)$/.test(n) || n.includes("win")) {
+      windows.push(a);
+    } else if (/\.(deb)$/.test(n) || n.includes("debian") || n.includes("ubuntu") || n.includes("linux")) {
+      debian.push(a);
+    } else {
+      others.push(a);
+    }
+  }
+  return { windows, debian, others };
+}
+
 export default function DownloadsList() {
   const [releases, setReleases] = useState<Release[] | null>(null);
   const [error, setError] = useState<string>("");
@@ -145,21 +178,77 @@ export default function DownloadsList() {
                 </div>
 
                 {rel.assets && rel.assets.length > 0 ? (
-                  <ul className="mt-4 space-y-2">
-                    {rel.assets.map((a) => (
-                      <li key={a.id} className="flex items-center justify-between gap-3">
-                        <span className="text-sm text-muted-foreground truncate" title={a.name}>
-                          {a.name}
-                          {a.size ? <span className="ml-2 text-xs">({formatBytes(a.size)})</span> : null}
-                        </span>
-                        <Button asChild size="sm">
-                          <a href={a.browser_download_url} target="_blank" rel="noopener noreferrer">
-                            Download
-                          </a>
-                        </Button>
-                      </li>
-                    ))}
-                  </ul>
+                  (() => {
+                    const { windows, debian, others } = categorizeAssets(rel.assets);
+                    return (
+                      <div className="mt-4 space-y-4">
+                        {windows.length > 0 && (
+                          <div>
+                            <h4 className="text-sm font-medium flex items-center gap-2">
+                              <WindowsLogo className="h-4 w-4 text-sky-600" /> Windows
+                            </h4>
+                            <ul className="mt-2 space-y-2">
+                              {windows.map((a) => (
+                                <li key={a.id} className="flex items-center justify-between gap-3">
+                                  <span className="text-sm text-muted-foreground truncate" title={a.name}>
+                                    {a.name}
+                                    {a.size ? <span className="ml-2 text-xs">({formatBytes(a.size)})</span> : null}
+                                  </span>
+                                  <Button asChild size="sm">
+                                    <a href={a.browser_download_url} target="_blank" rel="noopener noreferrer">
+                                      Download
+                                    </a>
+                                  </Button>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        {debian.length > 0 && (
+                          <div>
+                            <h4 className="text-sm font-medium flex items-center gap-2">
+                              <LinuxLogo className="h-4 w-4 text-emerald-600" /> Debian/Ubuntu
+                            </h4>
+                            <ul className="mt-2 space-y-2">
+                              {debian.map((a) => (
+                                <li key={a.id} className="flex items-center justify-between gap-3">
+                                  <span className="text-sm text-muted-foreground truncate" title={a.name}>
+                                    {a.name}
+                                    {a.size ? <span className="ml-2 text-xs">({formatBytes(a.size)})</span> : null}
+                                  </span>
+                                  <Button asChild size="sm">
+                                    <a href={a.browser_download_url} target="_blank" rel="noopener noreferrer">
+                                      Download
+                                    </a>
+                                  </Button>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        {others.length > 0 && (
+                          <div>
+                            <h4 className="text-sm font-medium">Other</h4>
+                            <ul className="mt-2 space-y-2">
+                              {others.map((a) => (
+                                <li key={a.id} className="flex items-center justify-between gap-3">
+                                  <span className="text-sm text-muted-foreground truncate" title={a.name}>
+                                    {a.name}
+                                    {a.size ? <span className="ml-2 text-xs">({formatBytes(a.size)})</span> : null}
+                                  </span>
+                                  <Button asChild size="sm">
+                                    <a href={a.browser_download_url} target="_blank" rel="noopener noreferrer">
+                                      Download
+                                    </a>
+                                  </Button>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()
                 ) : (
                   <p className="mt-4 text-sm text-muted-foreground">No downloadable assets. See release notes.</p>
                 )}
