@@ -26,6 +26,7 @@ type Release = {
 const OWNER_REPO = "ConsoleMangena/sitesurveyor";
 const RELEASES_API = `https://api.github.com/repos/${OWNER_REPO}/releases?per_page=100`;
 const RELEASES_PAGE = `https://github.com/${OWNER_REPO}/releases`;
+const LOCAL_RELEASES = "/releases.json";
 
 function formatBytes(bytes?: number): string {
   if (!bytes && bytes !== 0) return "";
@@ -45,11 +46,29 @@ export default function DownloadsList() {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch(RELEASES_API, {
-          headers: { Accept: "application/vnd.github+json" },
+        // Prefer a pre-generated manifest (from CI) to avoid client-side rate limits
+        let data: Release[] | null = null;
+        try {
+          const local = await fetch(LOCAL_RELEASES, { cache: "no-store" });
+          if (local.ok) {
+            data = await local.json();
+          }
+        } catch {
+          // ignore and fall back to live API
+        }
+        if (!data) {
+          const res = await fetch(RELEASES_API, {
+            headers: { Accept: "application/vnd.github+json" },
+          });
+          if (!res.ok) throw new Error(`GitHub API responded ${res.status}`);
+          data = await res.json();
+        }
+        // Optional: ensure newest first
+        data = (data || []).slice().sort((a, b) => {
+          const ta = a.published_at ? Date.parse(a.published_at) : 0;
+          const tb = b.published_at ? Date.parse(b.published_at) : 0;
+          return tb - ta;
         });
-        if (!res.ok) throw new Error(`GitHub API responded ${res.status}`);
-        const data: Release[] = await res.json();
         if (!cancelled) setReleases(data);
       } catch {
         if (!cancelled) setError("Could not load releases. Please use the GitHub releases page.");
@@ -91,7 +110,8 @@ export default function DownloadsList() {
       <h2 className="text-lg font-medium text-center">All releases</h2>
       <div className="grid md:grid-cols-2 gap-6">
         {releases.map((rel, index) => {
-          const isLatest = index === 0 && !rel.prerelease && !rel.draft;
+          const latestStableIndex = releases.findIndex((r) => !r.prerelease && !r.draft);
+          const isLatest = index === latestStableIndex && latestStableIndex !== -1;
           return (
             <Card key={rel.id} className="bg-card">
               <CardContent className="p-6">
