@@ -6,7 +6,10 @@ export const metadata: Metadata = {
 };
 
 export default function EventsPage() {
-  const events: { name: string; date: string; location: string }[] = [];
+  const events: { name: string; date: string; location: string }[] = [
+    { name: "Intro to SiteSurveyor (Webinar)", date: "2026-01-15", location: "Online" },
+    { name: "Field Data Workflows (Workshop)", date: "2026-02-12", location: "Online" },
+  ];
 
   return (
     <main className="max-w-5xl mx-auto px-4 py-12 space-y-8">

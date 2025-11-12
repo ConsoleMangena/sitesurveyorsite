@@ -6,7 +6,19 @@ export const metadata: Metadata = {
 };
 
 export default function NewsPage() {
-  const posts: { title: string; date: string; summary: string }[] = [];
+  const posts: { title: string; date: string; summary: string }[] = [
+    {
+      title: "Website launched",
+      date: "2025-11-01",
+      summary: "The new SiteSurveyor website is live with product overview, docs, and downloads.",
+    },
+    {
+      title: "Desktop releases available",
+      date: "2025-11-10",
+      summary:
+        "Initial Windows (ZIP) and Ubuntu/Debian (amd64 .deb) builds are published on GitHub Releases.",
+    },
+  ];
 
   return (
     <main className="max-w-5xl mx-auto px-4 py-12 space-y-8">

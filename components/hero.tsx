@@ -119,8 +119,8 @@ export default function Hero() {
             whileHover={{ scale: 1.05 }}
             className="items-center justify-center gap-x-3 space-y-3 sm:flex sm:space-y-0"
           >
-            <Button className="shadow-lg" size="lg">
-              Get Started
+            <Button asChild className="shadow-lg" size="lg">
+              <Link href="/downloads">Get Started</Link>
             </Button>
           </motion.div>
         </motion.div>

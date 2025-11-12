@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { GitHubLogoIcon, TwitterLogoIcon } from "@radix-ui/react-icons";
+import { GitHubLogoIcon } from "@radix-ui/react-icons";
 
 const Footer = () => {
   const year = new Date().getFullYear();
@@ -12,13 +12,8 @@ const Footer = () => {
   const socialLinks = [
     {
       name: "GitHub",
-      href: "#github",
+      href: "https://github.com/ConsoleMangena/sitesurveyor",
       icon: GitHubLogoIcon,
-    },
-    {
-      name: "Twitter",
-      href: "#twitter",
-      icon: TwitterLogoIcon,
     },
   ];
 

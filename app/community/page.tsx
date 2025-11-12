@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "Community | SiteSurveyor",
@@ -16,21 +18,31 @@ export default function CommunityPage() {
       </header>
 
       <section className="grid md:grid-cols-3 gap-6">
-        <div className="space-y-2">
-          <h2 className="text-lg font-medium">Discussions</h2>
-          <p className="text-muted-foreground">
-            Ask questions, propose features, and discuss best practices.
-          </p>
+        <div className="space-y-3 border rounded-lg p-5 bg-card">
+          <h2 className="text-lg font-medium">Report a bug</h2>
+          <p className="text-muted-foreground">Found a problem? Open an issue with steps to reproduce.</p>
+          <Button asChild>
+            <a href="https://github.com/ConsoleMangena/sitesurveyor/issues/new" target="_blank" rel="noopener noreferrer">New issue</a>
+          </Button>
         </div>
-        <div className="space-y-2">
+        <div className="space-y-3 border rounded-lg p-5 bg-card">
+          <h2 className="text-lg font-medium">Request a feature</h2>
+          <p className="text-muted-foreground">Tell us what would make SiteSurveyor better for your team.</p>
+          <Button asChild variant="outline">
+            <a href="https://github.com/ConsoleMangena/sitesurveyor/issues/new?labels=enhancement" target="_blank" rel="noopener noreferrer">Request feature</a>
+          </Button>
+        </div>
+        <div className="space-y-3 border rounded-lg p-5 bg-card">
           <h2 className="text-lg font-medium">Contribute</h2>
-          <p className="text-muted-foreground">
-            Open issues, suggest improvements, and help improve docs.
-          </p>
-        </div>
-        <div className="space-y-2">
-          <h2 className="text-lg font-medium">Support</h2>
-          <p className="text-muted-foreground">Get help with setup and integrations.</p>
+          <p className="text-muted-foreground">Fix a bug, improve docs, or add an integration.</p>
+          <div className="flex gap-3">
+            <Button asChild>
+              <a href="https://github.com/ConsoleMangena/sitesurveyor/pulls" target="_blank" rel="noopener noreferrer">Open PRs</a>
+            </Button>
+            <Button asChild variant="outline">
+              <a href="https://github.com/ConsoleMangena/sitesurveyor" target="_blank" rel="noopener noreferrer">Repository</a>
+            </Button>
+          </div>
         </div>
       </section>
     </main>

@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
 import NavBar from "@/components/navbar";
-import { Geist } from "next/font/google";
+import { Inter } from "next/font/google";
 
-const geist = Geist({
+const inter = Inter({
   subsets: ["latin"],
 });
 
@@ -24,23 +24,12 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* 
-          Plausible Analytics integration for website analytics.
-          Replace the data-domain and src attributes with your own Plausible setup,
-          or remove this script entirely if you don't need analytics.
-          Note: The current configuration sends your data to the creator's domain.
-        */}
-        <script
-          defer
-          data-domain="saas.gonzalochale.dev"
-          src="https://plausible.gonzalochale.dev/js/script.outbound-links.js"
-        ></script>
         {/* Reduce HTML caching to avoid stale chunk references after deployments */}
         <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
         <meta httpEquiv="Pragma" content="no-cache" />
         <meta httpEquiv="Expires" content="0" />
       </head>
-      <body className={`${geist.className} antialiased`}>
+      <body className={`${inter.className} antialiased`}>
         <Providers>
           <NavBar />
           {children}
