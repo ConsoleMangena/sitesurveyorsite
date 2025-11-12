@@ -28,6 +28,8 @@ export default function Pricing() {
       isMostPop: true,
       features: [
         "Everything in Free",
+        "AI agent for assistance",
+        "Cloud storage and sync",
         "Advanced AI tools",
         "Priority support",
         "Custom integrations",
