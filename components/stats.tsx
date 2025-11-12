@@ -74,10 +74,30 @@ export default function Stats() {
   }, []);
 
   const tiles = [
-    { label: "Stars", value: formatCompact(stars), href: `${REPO_URL}/stargazers` },
-    { label: "Forks", value: formatCompact(forks), href: `${REPO_URL}/network/members` },
-    { label: "Open issues/PRs", value: formatCompact(openIssues), href: `${REPO_URL}/issues` },
-    { label: "Contributors", value: formatCompact(contributors), href: `${REPO_URL}/graphs/contributors` },
+    {
+      label: "Stars",
+      value: formatCompact(stars),
+      href: `${REPO_URL}/stargazers`,
+      badge: `https://img.shields.io/github/stars/${REPO}?label=Stars&color=0ea5e9`,
+    },
+    {
+      label: "Forks",
+      value: formatCompact(forks),
+      href: `${REPO_URL}/network/members`,
+      badge: `https://img.shields.io/github/forks/${REPO}?label=Forks&color=0ea5e9`,
+    },
+    {
+      label: "Open issues/PRs",
+      value: formatCompact(openIssues),
+      href: `${REPO_URL}/issues`,
+      badge: `https://img.shields.io/github/issues-raw/${REPO}?label=Open%20issues&color=0ea5e9`,
+    },
+    {
+      label: "Contributors",
+      value: formatCompact(contributors),
+      href: `${REPO_URL}/graphs/contributors`,
+      badge: `https://img.shields.io/github/contributors/${REPO}?label=Contributors&color=0ea5e9`,
+    },
   ];
 
   return (
@@ -99,7 +119,16 @@ export default function Stats() {
                 rel="noopener noreferrer"
                 className="block hover:opacity-90 transition-opacity"
               >
-                <div className="text-3xl md:text-4xl font-bold mb-2">{tile.value}</div>
+                {tile.value !== "—" ? (
+                  <div className="text-3xl md:text-4xl font-bold mb-2">{tile.value}</div>
+                ) : (
+                  <img
+                    src={tile.badge}
+                    alt={`${tile.label} badge`}
+                    className="mx-auto h-8 mb-2"
+                    loading="lazy"
+                  />
+                )}
                 <div className="text-sm text-muted-foreground font-medium">{tile.label}</div>
               </a>
             </motion.div>
