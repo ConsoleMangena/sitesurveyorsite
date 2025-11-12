@@ -1,12 +1,13 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import type React from "react";
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
 
 export default function ThemeSwitcher() {
   const { resolvedTheme, setTheme } = useTheme();
-  const [icon, setIcon] = useState<JSX.Element>(<MoonIcon />);
+  const [icon, setIcon] = useState<React.ReactNode>(<MoonIcon />);
 
   useEffect(() => {
     setIcon(resolvedTheme === "light" ? <MoonIcon /> : <SunIcon />);

@@ -1,15 +1,6 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useState, useEffect } from "react";

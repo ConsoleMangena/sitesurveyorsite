@@ -9,12 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import ThemeSwitcher from "@/components/theme-switcher";
 import {
-  ChevronDownIcon,
-  FaceIcon,
-  GlobeIcon,
-  OpenInNewWindowIcon,
   PersonIcon,
-  TimerIcon,
   HamburgerMenuIcon,
   Cross1Icon,
   ExitIcon,
