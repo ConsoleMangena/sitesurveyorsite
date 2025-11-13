@@ -43,6 +43,8 @@ npm run build
 - ✅ Efficient, lightweight UI with dark/light mode
 - ✅ Animated, responsive landing experience
 - ✅ GitHub Pages deployment
+- ✅ Automated GitHub release feeds with search, filters, and opt-in alerts
+- ✅ Changelog timeline and interactive workflow playground
 
 ## 📝 User Registration Fields
 

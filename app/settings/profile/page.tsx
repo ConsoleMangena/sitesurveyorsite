@@ -54,6 +54,10 @@ export default function ProfileSettingsPage() {
     setSaving(true);
     try {
       const { account } = await import("@/lib/appwrite");
+      if (!account) {
+        setError("Profile updates are not available in this deployment.");
+        return;
+      }
       if (name && user && name !== user.name) {
         await account.updateName(name);
       }
@@ -106,7 +110,7 @@ export default function ProfileSettingsPage() {
           </div>
         </div>
 
-        {error && <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-md">{error}</div>}
+  {error && <div className="p-3 text-sm text-red-600 bg-red-600/10 rounded-md">{error}</div>}
         {success && <div className="p-3 text-sm text-emerald-600 bg-emerald-600/10 rounded-md">{success}</div>}
 
         <div className="flex gap-3">

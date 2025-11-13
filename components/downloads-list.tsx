@@ -1,305 +1,280 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { useMemo, useState, type ComponentType, type SVGProps } from "react";
+import { ArrowUpRightSquare, BookmarkCheck, Cpu, FilterIcon, Search } from "lucide-react";
+
+import type { GitHubRelease } from "@/lib/github";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Badge, type BadgeVariant } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import Link from "next/link";
 
-type ReleaseAsset = {
-  id: number;
-  name: string;
-  browser_download_url: string;
-  content_type?: string;
-  size?: number; // bytes
+const RELEASES_PAGE = "https://github.com/ConsoleMangena/sitesurveyor/releases";
+
+type Props = {
+  releases: GitHubRelease[];
 };
 
-type Release = {
-  id: number;
-  tag_name: string;
-  name?: string;
-  published_at?: string;
-  html_url: string;
-  draft: boolean;
-  prerelease: boolean;
-  assets: ReleaseAsset[];
+type FilterKey = "all" | "stable" | "prerelease";
+
+type AssetMeta = {
+  label: string;
+  variant: BadgeVariant;
+  Icon?: ComponentType<SVGProps<SVGSVGElement>>;
 };
 
-const OWNER_REPO = "ConsoleMangena/sitesurveyor";
-const RELEASES_API = `https://api.github.com/repos/${OWNER_REPO}/releases`;
-const RELEASES_PAGE = `https://github.com/${OWNER_REPO}/releases`;
-const LOCAL_RELEASES = "/releases.json";
-const RELEASES_PER_PAGE = 100;
-const MAX_RELEASE_PAGES = 5;
+const filterOptions: Array<{ value: FilterKey; label: string }> = [
+  { value: "all", label: "All" },
+  { value: "stable", label: "Stable" },
+  { value: "prerelease", label: "Pre-release" },
+];
 
-const GITHUB_HEADERS = {
-  Accept: "application/vnd.github+json",
-  "User-Agent": "SiteSurveyorSite/1.0",
-} as const;
+function formatDate(isoDate?: string) {
+  if (!isoDate) return "Unpublished";
+  return new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(new Date(isoDate));
+}
 
-function formatBytes(bytes?: number): string {
+function formatBytes(bytes?: number) {
   if (!bytes && bytes !== 0) return "";
-  const mb = bytes / (1024 * 1024);
-  if (mb >= 1) return `${mb.toFixed(1)} MB`;
-  const kb = bytes / 1024;
-  if (kb >= 1) return `${kb.toFixed(1)} KB`;
-  return `${bytes} B`;
-}
-
-function WindowsLogo({ className = "h-4 w-4" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 448 512" className={className} aria-hidden>
-      <path fill="currentColor" d="M0 93.7L183.6 68.2v164.6H0V93.7zm0 324.6l183.6 25.6V281.6H0v136.7zM214.6 66.7L448 32v200.8H214.6V66.7zM448 480l-233.4-33.3V281.6H448V480z"/>
-    </svg>
-  );
-}
-
-function LinuxLogo({ className = "h-4 w-4" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 64 64" className={className} aria-hidden>
-      <path fill="currentColor" d="M32 4c7 0 10 6 10 12 0 6-3 10-3 14 0 4 3 6 6 10 3 5 3 10-1 12-3 2-8 1-12-2-4 3-9 4-12 2-4-2-4-7-1-12 3-4 6-6 6-10 0-4-3-8-3-14 0-6 3-12 10-12z"/>
-    </svg>
-  );
-}
-
-function categorizeAssets(assets: ReleaseAsset[]) {
-  const windows: ReleaseAsset[] = [];
-  const debian: ReleaseAsset[] = [];
-  const others: ReleaseAsset[] = [];
-  for (const a of assets || []) {
-    const n = a.name.toLowerCase();
-    if (/\.(exe|msi|zip)$/.test(n) || n.includes("win")) {
-      windows.push(a);
-    } else if (/\.(deb)$/.test(n) || n.includes("debian") || n.includes("ubuntu") || n.includes("linux")) {
-      debian.push(a);
-    } else {
-      others.push(a);
-    }
+  const units = ["B", "KB", "MB", "GB", "TB"] as const;
+  let value = bytes;
+  let unitIndex = 0;
+  while (value >= 1024 && unitIndex < units.length - 1) {
+    value /= 1024;
+    unitIndex += 1;
   }
-  return { windows, debian, others };
+  return `${value % 1 === 0 ? value.toFixed(0) : value.toFixed(1)} ${units[unitIndex]}`;
 }
 
-async function fetchRemoteReleases(signal: AbortSignal): Promise<Release[]> {
-  const all: Release[] = [];
+function extractHighlights(body?: string | null) {
+  if (!body) return [] as Array<{ text: string; isBreaking: boolean }>;
 
-  for (let page = 1; page <= MAX_RELEASE_PAGES; page += 1) {
-    const query = `${RELEASES_API}?per_page=${RELEASES_PER_PAGE}&page=${page}`;
-    const res = await fetch(query, {
-      headers: GITHUB_HEADERS,
-      cache: "no-store",
-      signal,
-    });
+  const lines = body
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
 
-    if (!res.ok) {
-      throw new Error(`GitHub API responded ${res.status}`);
-    }
+  const bulletPoints = lines
+    .filter((line) => /^[-*+]/.test(line))
+    .map((line) => line.replace(/^[-*+]\s*/, ""));
 
-    const chunk = (await res.json()) as Release[];
-    all.push(...chunk);
+  const meaningful = (bulletPoints.length > 0 ? bulletPoints : lines).filter((line) => line.length > 3);
 
-    if (chunk.length < RELEASES_PER_PAGE) {
-      break;
-    }
+  return meaningful.slice(0, 3).map((text) => ({
+    text,
+    isBreaking: /breaking/i.test(text),
+  }));
+}
+
+function resolveAssetMeta(name: string): AssetMeta[] {
+  const lower = name.toLowerCase();
+  const result: AssetMeta[] = [];
+
+  if (/(\.exe|\.msi|windows|win32|win64)/.test(lower)) {
+    result.push({ label: "Windows", variant: "info" });
+  } else if (/(\.dmg|macos|darwin|\.pkg)/.test(lower)) {
+    result.push({ label: "macOS", variant: "secondary" });
+  } else if (/(linux|ubuntu|debian|\.deb|\.tar\.gz|\.appimage)/.test(lower)) {
+    result.push({ label: "Linux", variant: "success" });
   }
 
-  return all;
+  if (/arm64|aarch64/.test(lower)) {
+    result.push({ label: "ARM64", variant: "outline", Icon: Cpu });
+  } else if (/x64|amd64|x86_64/.test(lower)) {
+    result.push({ label: "x64", variant: "outline", Icon: Cpu });
+  }
+
+  return result;
 }
 
-export default function DownloadsList() {
-  const [releases, setReleases] = useState<Release[] | null>(null);
-  const [error, setError] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(true);
-  const [osTab, setOsTab] = useState<Record<number, "windows" | "debian">>({});
+export default function DownloadsList({ releases }: Props) {
+  const [track, setTrack] = useState<FilterKey>("all");
+  const [query, setQuery] = useState("");
 
-  useEffect(() => {
-    const controller = new AbortController();
-    let cancelled = false;
-    (async () => {
-      try {
-        let data: Release[] | null = null;
+  const filtered = useMemo(() => {
+    const lowerQuery = query.trim().toLowerCase();
 
-        try {
-          data = await fetchRemoteReleases(controller.signal);
-        } catch (remoteError) {
-          if (cancelled || (remoteError instanceof DOMException && remoteError.name === "AbortError")) {
-            return;
-          }
-          try {
-            const local = await fetch(LOCAL_RELEASES, {
-              cache: "no-store",
-              signal: controller.signal,
-            });
-            if (local.ok) {
-              data = await local.json();
-            }
-          } catch {
-            // Ignore and fall back to error message below.
-          }
-          if (!data) {
-            throw remoteError;
-          }
+    return releases
+      .filter((release) => {
+        if (track === "stable") {
+          return !release.prerelease;
         }
-
-        data = data
-          .filter((release) => !release.draft)
-          .sort((a, b) => {
-            const ta = a.published_at ? Date.parse(a.published_at) : 0;
-            const tb = b.published_at ? Date.parse(b.published_at) : 0;
-            return tb - ta;
-          });
-
-        if (!cancelled) setReleases(data);
-      } catch (err) {
-        if (cancelled || (err instanceof DOMException && err.name === "AbortError")) {
-          return;
+        if (track === "prerelease") {
+          return release.prerelease;
         }
-        setError("Could not load releases. Please use the GitHub releases page.");
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      controller.abort();
-      cancelled = true;
-    };
-  }, []);
+        return true;
+      })
+      .filter((release) => {
+        if (!lowerQuery) return true;
+        const haystack = [
+          release.tag_name,
+          release.name ?? "",
+          release.body ?? "",
+          release.assets.map((asset) => asset.name).join(" "),
+        ]
+          .join(" ")
+          .toLowerCase();
 
-  if (loading) {
-    return (
-      <div className="space-y-3">
-        <div className="h-6 w-48 bg-muted rounded animate-pulse" />
-        <div className="grid md:grid-cols-2 gap-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-28 bg-muted rounded animate-pulse" />
-          ))}
-        </div>
-      </div>
-    );
-  }
+        return haystack.includes(lowerQuery);
+      });
+  }, [releases, track, query]);
 
-  if (error || !releases) {
+  if (releases.length === 0) {
     return (
-      <div className="text-center text-muted-foreground">
-        <p className="mb-2">{error || "No releases found."}</p>
-        <a className="underline" href={RELEASES_PAGE} target="_blank" rel="noopener noreferrer">
-          Open GitHub Releases
-        </a>
+      <div className="text-center text-muted-foreground text-sm">
+        No published releases yet. Follow development on
+        {" "}
+        <Link
+          href={RELEASES_PAGE}
+          target="_blank"
+          rel="noreferrer"
+          className="underline underline-offset-4"
+        >
+          GitHub
+        </Link>
+        .
       </div>
     );
   }
 
   return (
     <section className="space-y-6">
-      <h2 className="text-lg font-medium text-center">All releases</h2>
-      <div className="grid md:grid-cols-2 gap-6">
-        {releases.map((rel, index) => {
-          const latestStableIndex = releases.findIndex((r) => !r.prerelease && !r.draft);
-          const isLatest = index === latestStableIndex && latestStableIndex !== -1;
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex items-center gap-3">
+          <FilterIcon className="size-4 text-muted-foreground" />
+          <div className="flex items-center gap-2 rounded-full border bg-card p-1 text-xs">
+            {filterOptions.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                className={`rounded-full px-3 py-1 ${
+                  track === option.value ? "bg-primary text-primary-foreground" : "hover:bg-muted"
+                }`}
+                onClick={() => setTrack(option.value)}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="relative w-full sm:w-72">
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Filter by tag, name, or asset"
+            className="pl-9"
+            aria-label="Search releases"
+          />
+        </div>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        {filtered.map((release, index) => {
+          const highlights = extractHighlights(release.body);
+          const published = formatDate(release.published_at);
+          const isLatestStable = filtered.findIndex((r) => !r.prerelease) === index && !release.prerelease;
+
           return (
-            <Card key={rel.id} className="bg-card">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between gap-3">
+            <Card key={release.id} className="bg-card/80 backdrop-blur">
+              <CardContent className="flex flex-col gap-4 p-6">
+                <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <h3 className="text-base font-semibold">
-                      {rel.tag_name}
-                      {rel.name ? <span className="text-muted-foreground font-normal"> — {rel.name}</span> : null}
-                    </h3>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {rel.published_at ? new Date(rel.published_at).toLocaleDateString() : "Unpublished"}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-lg font-semibold tracking-tight">
+                        {release.name?.trim() || release.tag_name}
+                      </h3>
+                      {isLatestStable ? <Badge variant="success">Latest</Badge> : null}
+                      {release.prerelease ? <Badge variant="warning">Pre-release</Badge> : null}
+                    </div>
+                    <p className="text-xs text-muted-foreground">Published {published}</p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {isLatest && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
-                        Latest
-                      </span>
-                    )}
-                    {rel.prerelease && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/20">
-                        Pre-release
-                      </span>
-                    )}
-                    {rel.draft && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-gray-500/10 text-gray-600 border border-gray-500/20">
-                        Draft
-                      </span>
-                    )}
-                  </div>
+                  <Button asChild size="sm" variant="link" className="h-auto px-0 text-sm">
+                    <Link href={release.html_url} target="_blank" rel="noreferrer">
+                      Release notes
+                      <ArrowUpRightSquare className="ml-1 size-4" aria-hidden="true" />
+                    </Link>
+                  </Button>
                 </div>
 
-                {rel.assets && rel.assets.length > 0 ? (
-                  (() => {
-                    const { windows, debian } = categorizeAssets(rel.assets);
-                    if (windows.length === 0 && debian.length === 0) {
-                      return (
-                        <p className="mt-4 text-sm text-muted-foreground">No Windows or Debian assets. See release notes.</p>
-                      );
-                    }
-                    const current = osTab[rel.id] ?? (windows.length > 0 ? "windows" : "debian");
-                    if (osTab[rel.id] === undefined) {
-                      // initialize default for this release id
-                      setTimeout(() => setOsTab((m) => ({ ...m, [rel.id]: current })), 0);
-                    }
-                    const list = current === "windows" ? windows : debian;
-                    return (
-                      <div className="mt-4 space-y-3">
-                        <div className="inline-flex items-center rounded-md border p-1 bg-card">
-                          {windows.length > 0 && (
-                            <button
-                              type="button"
-                              className={`flex items-center gap-2 px-3 py-1 text-sm rounded ${
-                                current === "windows" ? "bg-secondary" : "hover:bg-accent"
-                              }`}
-                              onClick={() => setOsTab((m) => ({ ...m, [rel.id]: "windows" }))}
-                              aria-pressed={current === "windows"}
-                            >
-                              <WindowsLogo className="h-4 w-4 text-sky-600" /> Windows
-                            </button>
-                          )}
-                          {debian.length > 0 && (
-                            <button
-                              type="button"
-                              className={`flex items-center gap-2 px-3 py-1 text-sm rounded ${
-                                current === "debian" ? "bg-secondary" : "hover:bg-accent"
-                              }`}
-                              onClick={() => setOsTab((m) => ({ ...m, [rel.id]: "debian" }))}
-                              aria-pressed={current === "debian"}
-                            >
-                              <LinuxLogo className="h-4 w-4 text-emerald-600" /> Debian/Ubuntu
-                            </button>
-                          )}
-                        </div>
-                        <ul className="space-y-2">
-                          {list.map((a) => (
-                            <li key={a.id} className="flex items-center justify-between gap-3">
-                              <span className="text-sm text-muted-foreground truncate" title={a.name}>
-                                {a.name}
-                                {a.size ? <span className="ml-2 text-xs">({formatBytes(a.size)})</span> : null}
+                {highlights.length > 0 ? (
+                  <div className="space-y-2 rounded-lg border border-dashed border-border/60 bg-muted/40 p-3">
+                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Key changes
+                    </p>
+                    <ul className="space-y-1 text-sm text-muted-foreground">
+                      {highlights.map((highlight, idx) => (
+                        <li key={idx} className="flex items-start gap-2">
+                          <BookmarkCheck className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
+                          <span className={highlight.isBreaking ? "font-medium text-foreground" : undefined}>
+                            {highlight.text}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+
+                <div className="space-y-3">
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    Assets
+                  </p>
+
+                  {release.assets.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      No downloadable artifacts published. Refer to the release notes for build instructions.
+                    </p>
+                  ) : (
+                    <ul className="space-y-2">
+                      {release.assets.map((asset) => {
+                        const meta = resolveAssetMeta(asset.name);
+
+                        return (
+                          <li
+                            key={asset.id}
+                            className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/60 bg-background/90 px-3 py-2"
+                          >
+                            <div className="flex min-w-0 flex-col">
+                              <span className="truncate text-sm font-medium" title={asset.name}>
+                                {asset.name}
                               </span>
-                              <Button asChild size="sm">
-                                <a href={a.browser_download_url} target="_blank" rel="noopener noreferrer">
-                                  Download
-                                </a>
-                              </Button>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    );
-                  })()
-                ) : (
-                  <p className="mt-4 text-sm text-muted-foreground">No downloadable assets. See release notes.</p>
-                )}
+                              <span className="text-xs text-muted-foreground">{formatBytes(asset.size)}</span>
+                              <div className="mt-1 flex flex-wrap gap-1">
+                                {meta.map((entry, idx) => (
+                                  <Badge key={idx} variant={entry.variant}>
+                                    {entry.Icon ? <entry.Icon className="mr-1 size-3" aria-hidden="true" /> : null}
+                                    {entry.label}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                            <Button asChild size="sm">
+                              <a href={asset.browser_download_url} target="_blank" rel="noreferrer">
+                                Download
+                              </a>
+                            </Button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </div>
               </CardContent>
-              <CardFooter className="p-6 pt-0">
-                <Button asChild variant="outline" size="sm">
-                  <a href={rel.html_url} target="_blank" rel="noopener noreferrer">
-                    View on GitHub
-                  </a>
-                </Button>
+              <CardFooter className="flex flex-wrap gap-2 border-t border-border/60 bg-muted/40 px-6 py-3 text-xs text-muted-foreground">
+                <span>Total assets: {release.assets.length}</span>
+                <span>Tag: {release.tag_name}</span>
               </CardFooter>
             </Card>
           );
         })}
       </div>
+
+      {filtered.length === 0 ? (
+        <div className="rounded-lg border border-dashed px-4 py-3 text-sm text-muted-foreground">
+          No releases match your filters. Try switching to a different track or clearing the search query.
+        </div>
+      ) : null}
     </section>
   );
 }

@@ -20,6 +20,8 @@ const Footer = () => {
   const footerLinks: { name: string; href: string }[] = [
     { name: "About", href: "/about" },
     { name: "Downloads", href: "/downloads" },
+    { name: "Changelog", href: "/changelog" },
+    { name: "Playground", href: "/playground" },
     { name: "Documentation", href: "/documentation" },
     { name: "Community", href: "/community" },
     { name: "Success Stories", href: "/success-stories" },

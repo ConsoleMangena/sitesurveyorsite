@@ -32,6 +32,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   async function checkUser() {
+    if (!account) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
     try {
       const currentUser = await account.get();
       setUser(currentUser);
@@ -43,11 +48,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function login(email: string, password: string) {
+    if (!account) {
+      throw new Error("Authentication is not configured.");
+    }
     await account.createEmailPasswordSession(email, password);
     await checkUser();
   }
 
   async function register(email: string, password: string, name: string, profile: UserProfile) {
+    if (!account) {
+      throw new Error("Authentication is not configured.");
+    }
     await account.create("unique()", email, password, name);
     await login(email, password);
     // Store additional profile information in user preferences
@@ -56,6 +67,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function loginWithGithub() {
+    if (!account) {
+      throw new Error("Authentication is not configured.");
+    }
     // Redirect-based OAuth flow; ensure these URLs are allowed in Appwrite redirect URLs
     const successUrl = typeof window !== 'undefined' ? `${window.location.origin}/` : undefined;
     const failureUrl = typeof window !== 'undefined' ? `${window.location.origin}/login/` : undefined;
@@ -63,6 +77,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function logout() {
+    if (!account) {
+      setUser(null);
+      return;
+    }
     await account.deleteSession("current");
     setUser(null);
   }
