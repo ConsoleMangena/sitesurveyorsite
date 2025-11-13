@@ -84,6 +84,7 @@ async function fetchRemoteReleases(signal: AbortSignal): Promise<Release[]> {
     const query = `${RELEASES_API}?per_page=${RELEASES_PER_PAGE}&page=${page}`;
     const res = await fetch(query, {
       headers: GITHUB_HEADERS,
+      cache: "no-store",
       signal,
     });
 
@@ -113,28 +114,38 @@ export default function DownloadsList() {
     let cancelled = false;
     (async () => {
       try {
-        // Prefer a pre-generated manifest (from CI) to avoid client-side rate limits
         let data: Release[] | null = null;
+
         try {
-          const local = await fetch(LOCAL_RELEASES, {
-            cache: "no-store",
-            signal: controller.signal,
-          });
-          if (local.ok) {
-            data = await local.json();
-          }
-        } catch {
-          // ignore and fall back to live API
-        }
-        if (!data) {
           data = await fetchRemoteReleases(controller.signal);
+        } catch (remoteError) {
+          if (cancelled || (remoteError instanceof DOMException && remoteError.name === "AbortError")) {
+            return;
+          }
+          try {
+            const local = await fetch(LOCAL_RELEASES, {
+              cache: "no-store",
+              signal: controller.signal,
+            });
+            if (local.ok) {
+              data = await local.json();
+            }
+          } catch {
+            // Ignore and fall back to error message below.
+          }
+          if (!data) {
+            throw remoteError;
+          }
         }
-        // Optional: ensure newest first
-        data = (data || []).slice().sort((a, b) => {
-          const ta = a.published_at ? Date.parse(a.published_at) : 0;
-          const tb = b.published_at ? Date.parse(b.published_at) : 0;
-          return tb - ta;
-        });
+
+        data = data
+          .filter((release) => !release.draft)
+          .sort((a, b) => {
+            const ta = a.published_at ? Date.parse(a.published_at) : 0;
+            const tb = b.published_at ? Date.parse(b.published_at) : 0;
+            return tb - ta;
+          });
+
         if (!cancelled) setReleases(data);
       } catch (err) {
         if (cancelled || (err instanceof DOMException && err.name === "AbortError")) {
