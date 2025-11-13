@@ -24,9 +24,16 @@ type Release = {
 };
 
 const OWNER_REPO = "ConsoleMangena/sitesurveyor";
-const RELEASES_API = `https://api.github.com/repos/${OWNER_REPO}/releases?per_page=100`;
+const RELEASES_API = `https://api.github.com/repos/${OWNER_REPO}/releases`;
 const RELEASES_PAGE = `https://github.com/${OWNER_REPO}/releases`;
 const LOCAL_RELEASES = "/releases.json";
+const RELEASES_PER_PAGE = 100;
+const MAX_RELEASE_PAGES = 5;
+
+const GITHUB_HEADERS = {
+  Accept: "application/vnd.github+json",
+  "User-Agent": "SiteSurveyorSite/1.0",
+} as const;
 
 function formatBytes(bytes?: number): string {
   if (!bytes && bytes !== 0) return "";
@@ -70,6 +77,31 @@ function categorizeAssets(assets: ReleaseAsset[]) {
   return { windows, debian, others };
 }
 
+async function fetchRemoteReleases(signal: AbortSignal): Promise<Release[]> {
+  const all: Release[] = [];
+
+  for (let page = 1; page <= MAX_RELEASE_PAGES; page += 1) {
+    const query = `${RELEASES_API}?per_page=${RELEASES_PER_PAGE}&page=${page}`;
+    const res = await fetch(query, {
+      headers: GITHUB_HEADERS,
+      signal,
+    });
+
+    if (!res.ok) {
+      throw new Error(`GitHub API responded ${res.status}`);
+    }
+
+    const chunk = (await res.json()) as Release[];
+    all.push(...chunk);
+
+    if (chunk.length < RELEASES_PER_PAGE) {
+      break;
+    }
+  }
+
+  return all;
+}
+
 export default function DownloadsList() {
   const [releases, setReleases] = useState<Release[] | null>(null);
   const [error, setError] = useState<string>("");
@@ -77,13 +109,17 @@ export default function DownloadsList() {
   const [osTab, setOsTab] = useState<Record<number, "windows" | "debian">>({});
 
   useEffect(() => {
+    const controller = new AbortController();
     let cancelled = false;
     (async () => {
       try {
         // Prefer a pre-generated manifest (from CI) to avoid client-side rate limits
         let data: Release[] | null = null;
         try {
-          const local = await fetch(LOCAL_RELEASES, { cache: "no-store" });
+          const local = await fetch(LOCAL_RELEASES, {
+            cache: "no-store",
+            signal: controller.signal,
+          });
           if (local.ok) {
             data = await local.json();
           }
@@ -91,11 +127,7 @@ export default function DownloadsList() {
           // ignore and fall back to live API
         }
         if (!data) {
-          const res = await fetch(RELEASES_API, {
-            headers: { Accept: "application/vnd.github+json" },
-          });
-          if (!res.ok) throw new Error(`GitHub API responded ${res.status}`);
-          data = await res.json();
+          data = await fetchRemoteReleases(controller.signal);
         }
         // Optional: ensure newest first
         data = (data || []).slice().sort((a, b) => {
@@ -104,13 +136,17 @@ export default function DownloadsList() {
           return tb - ta;
         });
         if (!cancelled) setReleases(data);
-      } catch {
-        if (!cancelled) setError("Could not load releases. Please use the GitHub releases page.");
+      } catch (err) {
+        if (cancelled || (err instanceof DOMException && err.name === "AbortError")) {
+          return;
+        }
+        setError("Could not load releases. Please use the GitHub releases page.");
       } finally {
         if (!cancelled) setLoading(false);
       }
     })();
     return () => {
+      controller.abort();
       cancelled = true;
     };
   }, []);
