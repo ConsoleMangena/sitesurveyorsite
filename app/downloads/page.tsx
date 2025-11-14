@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowUpRight, BellPlus, CalendarClock } from "lucide-react";
+import { ArrowDownToLine, ArrowUpRight, BellPlus, BookmarkCheck, CalendarClock } from "lucide-react";
 
 import DownloadsList from "@/components/downloads-list";
 import ReleaseAlertForm from "@/components/release-alert-form";
@@ -9,6 +9,48 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { fetchAllReleases, REPO_FULL_NAME } from "@/lib/github";
 
+type Highlight = {
+  text: string;
+  isBreaking: boolean;
+};
+
+function formatDate(isoDate?: string) {
+  if (!isoDate) return "Unpublished";
+  return new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(new Date(isoDate));
+}
+
+function formatBytes(bytes?: number) {
+  if (!bytes && bytes !== 0) return "";
+  const units = ["B", "KB", "MB", "GB", "TB"] as const;
+  let value = bytes;
+  let unitIndex = 0;
+  while (value >= 1024 && unitIndex < units.length - 1) {
+    value /= 1024;
+    unitIndex += 1;
+  }
+  return `${value % 1 === 0 ? value.toFixed(0) : value.toFixed(1)} ${units[unitIndex]}`;
+}
+
+function extractHighlights(body?: string | null): Highlight[] {
+  if (!body) return [];
+
+  const lines = body
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  const bulletPoints = lines
+    .filter((line) => /^[-*+]/.test(line))
+    .map((line) => line.replace(/^[-*+]\s*/, ""));
+
+  const meaningful = (bulletPoints.length > 0 ? bulletPoints : lines).filter((line) => line.length > 3);
+
+  return meaningful.slice(0, 3).map((text) => ({
+    text,
+    isBreaking: /breaking/i.test(text),
+  }));
+}
+
 export const metadata: Metadata = {
   title: "Downloads | SiteSurveyor",
   description: "Grab the latest SiteSurveyor builds and access the web experience in one place.",
@@ -16,6 +58,10 @@ export const metadata: Metadata = {
 
 export default async function DownloadsPage() {
   const releases = await fetchAllReleases();
+  const latestRelease = releases.find((release) => !release.prerelease) ?? releases[0];
+  const latestHighlights = latestRelease ? extractHighlights(latestRelease.body) : [];
+  const featuredAssets = latestRelease?.assets.slice(0, 3) ?? [];
+  const primaryAsset = featuredAssets[0];
 
   return (
     <main className="max-w-6xl mx-auto px-4 py-12 space-y-12">
@@ -46,6 +92,89 @@ export default async function DownloadsPage() {
           </ul>
         </div>
       </section>
+
+      {latestRelease ? (
+        <section className="rounded-3xl border bg-card/80 p-6 shadow-sm space-y-6">
+          <div className="flex flex-wrap items-center gap-3">
+            <Badge variant={latestRelease.prerelease ? "warning" : "success"}>
+              {latestRelease.prerelease ? "Latest prerelease" : "Latest stable release"}
+            </Badge>
+            <span className="text-sm text-muted-foreground">
+              Published {formatDate(latestRelease.published_at)}
+            </span>
+            <span className="text-sm text-muted-foreground">Tag {latestRelease.tag_name}</span>
+          </div>
+
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="text-2xl font-semibold tracking-tight">
+                {latestRelease.name?.trim() || latestRelease.tag_name}
+              </h2>
+              <p className="text-muted-foreground text-sm">
+                Sourced directly from our open-source repository. Review the highlights and pull the right build fast.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {primaryAsset ? (
+                <Button asChild>
+                  <a href={primaryAsset.browser_download_url} target="_blank" rel="noreferrer">
+                    <ArrowDownToLine className="mr-2 size-4" aria-hidden="true" />
+                    Download {primaryAsset.name}
+                  </a>
+                </Button>
+              ) : null}
+              <Button asChild variant="outline">
+                <a href={latestRelease.html_url} target="_blank" rel="noreferrer">
+                  View release notes
+                  <ArrowUpRight className="ml-2 size-4" aria-hidden="true" />
+                </a>
+              </Button>
+            </div>
+          </div>
+
+          {latestHighlights.length > 0 ? (
+            <div className="space-y-3 rounded-2xl border border-dashed border-border/60 bg-muted/40 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Key changes</p>
+              <ul className="grid gap-3 md:grid-cols-2">
+                {latestHighlights.map((highlight, idx) => (
+                  <li key={idx} className="flex items-start gap-2 text-sm text-muted-foreground">
+                    <BookmarkCheck className="mt-0.5 size-4 text-primary" aria-hidden="true" />
+                    <span className={highlight.isBreaking ? "font-medium text-foreground" : undefined}>
+                      {highlight.text}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
+          <div className="space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Featured assets</p>
+            {featuredAssets.length > 0 ? (
+              <ul className="grid gap-3 md:grid-cols-3">
+                {featuredAssets.map((asset) => (
+                  <li key={asset.id} className="rounded-2xl border border-border/60 bg-background/90 p-4">
+                    <div className="text-sm font-medium truncate" title={asset.name}>
+                      {asset.name}
+                    </div>
+                    <div className="text-xs text-muted-foreground">{formatBytes(asset.size)}</div>
+                    <Button asChild variant="ghost" size="sm" className="mt-3 w-full justify-between">
+                      <a href={asset.browser_download_url} target="_blank" rel="noreferrer">
+                        Download
+                        <ArrowDownToLine className="size-4" aria-hidden="true" />
+                      </a>
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                This release does not ship bundled artifacts. Follow the release notes for manual build steps.
+              </p>
+            )}
+          </div>
+        </section>
+      ) : null}
 
       <section className="grid gap-6 lg:grid-cols-[2fr_1fr]">
         <div className="space-y-4">
