@@ -10,54 +10,52 @@ import { motion } from "framer-motion";
 export default function Faq() {
   const accordionItems = [
     {
-      title: "This template is Free?",
+      title: "Is SiteSurveyor open source?",
       content: (
         <div className="text-muted-foreground">
-          Yes, this template is free. You can use it for personal or commercial
-          purposes.
+          Yes. The full codebase is available on GitHub and released under an
+          open-source license, so you can inspect, fork, and extend it for your
+          own workflows.
         </div>
       ),
     },
     {
-      title: "There are more templates?",
+      title: "Which platforms are supported?",
       content: (
         <div className="text-muted-foreground">
-          Yes, there are more templates available. You can find them here:{" "}
-          <a
-            href="https://x.com/gonzalochale"
-            target="_blank"
-            rel="noreferrer"
-            className="text-primary underline"
-          >
-            gonzalochale.dev
-          </a>
+          SiteSurveyor ships as a responsive web app and through desktop builds
+          for Windows and Debian. Check the downloads page for the latest
+          release bundles and installation notes.
         </div>
       ),
     },
     {
-      title: "How can I use this template?",
+      title: "Do I need my own Appwrite backend to start?",
       content: (
         <div className="text-muted-foreground">
-          You can use this template by cloning it from{" "}
-          <a
-            href="https://github.com/gonzalochale/nextui-saas-landing-template"
-            className="text-primary underline"
-            target="_blank"
-            rel="noreferrer"
-          >
-            GitHub
-          </a>
-          .
+          No. You can explore the product without configuring Appwrite. When
+          you are ready to self-host or connect to your infrastructure, simply
+          add the environment variables described in the documentation.
         </div>
       ),
     },
     {
-      title: "How can I contribute to this template?",
+      title: "Is there a free plan?",
       content: (
         <div className="text-muted-foreground">
-          You can contribute to this template by forking it on GitHub and
-          submitting a pull request. You can also report any issues or bugs you
-          encounter while using the template.
+          Yes. Teams can get started on the free tier for small projects and
+          field trials. Additional automation and QA tooling is unlocked on the
+          paid plans when you need more scale.
+        </div>
+      ),
+    },
+    {
+      title: "How can my team contribute?",
+      content: (
+        <div className="text-muted-foreground">
+          Contributions are welcome. Open an issue to share feedback, submit a
+          pull request with improvements, or showcase your results on the
+          success stories page.
         </div>
       ),
     },

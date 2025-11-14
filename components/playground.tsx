@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CheckCircle2, Compass, RefreshCw } from "lucide-react";
+import { AlertCircle, CheckCircle2, Compass, ExternalLink, GitBranch, Github, RefreshCw } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -99,18 +99,112 @@ const samples: SampleProject[] = [
   },
 ];
 
-export default function Playground() {
+type PlaygroundRelease = {
+  id: number;
+  name: string;
+  tag: string;
+  htmlUrl: string;
+  publishedAt: string;
+  assets: Array<{
+    id: number;
+    name: string;
+    size: number;
+    downloadUrl: string;
+  }>;
+};
+
+type PlaygroundRepoSnapshot = {
+  stars: number;
+  forks: number;
+  watchers: number;
+  subscribers: number;
+  openIssues: number;
+  defaultBranch: string;
+  pushedAt: string;
+};
+
+type PlaygroundIssue = {
+  id: number;
+  number: number;
+  title: string;
+  htmlUrl: string;
+  labels: string[];
+  createdAt: string;
+  comments: number;
+};
+
+type PlaygroundProps = {
+  releases: PlaygroundRelease[];
+  repoSnapshot: PlaygroundRepoSnapshot | null;
+  issues: PlaygroundIssue[];
+};
+
+const REPO_URL = "https://github.com/ConsoleMangena/sitesurveyor";
+
+const RELATIVE_TIME_FORMATTER = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+
+function formatRelativeTime(dateString: string) {
+  const target = new Date(dateString);
+  if (Number.isNaN(target.getTime())) return "";
+
+  const diffMilliseconds = target.getTime() - Date.now();
+  const diffSeconds = diffMilliseconds / 1000;
+  const absSeconds = Math.abs(diffSeconds);
+
+  if (absSeconds < 60) {
+    return RELATIVE_TIME_FORMATTER.format(Math.round(diffSeconds), "second");
+  }
+
+  const diffMinutes = diffSeconds / 60;
+  if (Math.abs(diffMinutes) < 60) {
+    return RELATIVE_TIME_FORMATTER.format(Math.round(diffMinutes), "minute");
+  }
+
+  const diffHours = diffMinutes / 60;
+  if (Math.abs(diffHours) < 24) {
+    return RELATIVE_TIME_FORMATTER.format(Math.round(diffHours), "hour");
+  }
+
+  const diffDays = diffHours / 24;
+  if (Math.abs(diffDays) < 7) {
+    return RELATIVE_TIME_FORMATTER.format(Math.round(diffDays), "day");
+  }
+
+  const diffWeeks = diffDays / 7;
+  if (Math.abs(diffWeeks) < 5) {
+    return RELATIVE_TIME_FORMATTER.format(Math.round(diffWeeks), "week");
+  }
+
+  const diffMonths = diffDays / 30;
+  if (Math.abs(diffMonths) < 12) {
+    return RELATIVE_TIME_FORMATTER.format(Math.round(diffMonths), "month");
+  }
+
+  const diffYears = diffDays / 365;
+  return RELATIVE_TIME_FORMATTER.format(Math.round(diffYears), "year");
+}
+
+function formatFileSize(bytes: number) {
+  if (!Number.isFinite(bytes)) return "";
+  const units = ["B", "KB", "MB", "GB"];
+  let size = bytes;
+  let unitIndex = 0;
+
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024;
+    unitIndex += 1;
+  }
+
+  return `${size.toFixed(size >= 10 || unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
+}
+
+export default function Playground({ releases, repoSnapshot, issues }: PlaygroundProps) {
   const [selection, setSelection] = useState(samples[0]);
   const [syncing, setSyncing] = useState(false);
   const [customNote, setCustomNote] = useState("");
 
-  const relativeUpdated = useMemo(() => {
-    const date = new Date(selection.updatedAt);
-    return new Intl.RelativeTimeFormat("en", { numeric: "auto" }).format(
-      Math.round((date.getTime() - Date.now()) / (1000 * 60 * 60)),
-      "hour",
-    );
-  }, [selection.updatedAt]);
+  const relativeUpdated = useMemo(() => formatRelativeTime(selection.updatedAt), [selection.updatedAt]);
+  const relativeRepoUpdated = repoSnapshot ? formatRelativeTime(repoSnapshot.pushedAt) : null;
 
   async function simulateSync() {
     setSyncing(true);
@@ -248,6 +342,168 @@ export default function Playground() {
                     </li>
                   ))}
                 </ul>
+              </div>
+
+              <div className="rounded-2xl border bg-card/80 p-5 space-y-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Repository snapshot</p>
+                    <p className="text-sm text-foreground">ConsoleMangena/sitesurveyor</p>
+                  </div>
+                  {relativeRepoUpdated ? (
+                    <Badge variant="outline">Pushed {relativeRepoUpdated}</Badge>
+                  ) : (
+                    <Badge variant="outline" className="text-muted-foreground">Status unavailable</Badge>
+                  )}
+                </div>
+                {repoSnapshot ? (
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div className="rounded-xl border bg-background/80 p-3">
+                        <p className="text-[11px] uppercase text-muted-foreground">Stars</p>
+                        <p className="text-lg font-semibold">{repoSnapshot.stars.toLocaleString()}</p>
+                      </div>
+                      <div className="rounded-xl border bg-background/80 p-3">
+                        <p className="text-[11px] uppercase text-muted-foreground">Forks</p>
+                        <p className="text-lg font-semibold">{repoSnapshot.forks.toLocaleString()}</p>
+                      </div>
+                      <div className="rounded-xl border bg-background/80 p-3">
+                        <p className="text-[11px] uppercase text-muted-foreground">Watchers</p>
+                        <p className="text-lg font-semibold">{repoSnapshot.watchers.toLocaleString()}</p>
+                      </div>
+                      <div className="rounded-xl border bg-background/80 p-3">
+                        <p className="text-[11px] uppercase text-muted-foreground">Open issues</p>
+                        <p className="text-lg font-semibold">{repoSnapshot.openIssues.toLocaleString()}</p>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                      <GitBranch className="size-3" aria-hidden="true" />
+                      <span>Default branch: {repoSnapshot.defaultBranch}</span>
+                      <span aria-hidden="true">•</span>
+                      <span>{repoSnapshot.subscribers.toLocaleString()} subscribers</span>
+                    </div>
+                    <div className="flex flex-col gap-2 sm:flex-row">
+                      <Button asChild className="flex-1">
+                        <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
+                          <Github className="mr-2 size-4" aria-hidden="true" />
+                          View repository
+                        </a>
+                      </Button>
+                      <Button asChild variant="outline" className="flex-1">
+                        <a href={`${REPO_URL}/pulse`} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="mr-2 size-4" aria-hidden="true" />
+                          Activity pulse
+                        </a>
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-dashed border-border/70 bg-background/70 p-4 text-sm">
+                    <p className="flex items-center gap-2 text-muted-foreground">
+                      <AlertCircle className="size-4" aria-hidden="true" />
+                      Live repository metrics are temporarily unavailable. Try refreshing shortly.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div className="rounded-2xl border bg-card/80 p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Latest releases</p>
+                  <Badge variant="secondary">Top {Math.min(releases.length, 3)}</Badge>
+                </div>
+                {releases.length > 0 ? (
+                  <div className="space-y-3">
+                    {releases.map((release) => (
+                      <div key={release.id} className="rounded-xl border bg-background/80 p-4 space-y-2">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div>
+                            <p className="text-sm font-semibold">{release.name}</p>
+                            <p className="text-xs text-muted-foreground">Published {formatRelativeTime(release.publishedAt)}</p>
+                          </div>
+                          <Badge variant="outline">{release.tag}</Badge>
+                        </div>
+                        {release.assets.length > 0 ? (
+                          <ul className="space-y-2 text-sm text-muted-foreground">
+                            {release.assets.map((asset) => (
+                              <li key={asset.id} className="flex flex-wrap items-center justify-between gap-2">
+                                <span>{asset.name}</span>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs text-muted-foreground">{formatFileSize(asset.size)}</span>
+                                  <Button asChild variant="outline" size="sm">
+                                    <a href={asset.downloadUrl} target="_blank" rel="noopener noreferrer">
+                                      <ExternalLink className="mr-1 size-3" aria-hidden="true" />
+                                      Download
+                                    </a>
+                                  </Button>
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="text-xs text-muted-foreground">No downloadable assets in this release.</p>
+                        )}
+                        <Button asChild size="sm" className="w-full">
+                          <a href={release.htmlUrl} target="_blank" rel="noopener noreferrer">
+                            View release notes
+                          </a>
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    Releases will appear here once the GitHub API responds.
+                  </p>
+                )}
+              </div>
+
+              <div className="rounded-2xl border bg-card/80 p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Active issues</p>
+                  <Badge variant="secondary">{issues.length}</Badge>
+                </div>
+                {issues.length > 0 ? (
+                  <ul className="space-y-3 text-sm text-muted-foreground">
+                    {issues.map((issue) => (
+                      <li key={issue.id} className="rounded-xl border bg-background/80 p-4 space-y-2">
+                        <div className="flex flex-wrap items-start justify-between gap-2">
+                          <div>
+                            <p className="text-sm font-semibold text-foreground">#{issue.number} · {issue.title}</p>
+                            <p className="text-xs text-muted-foreground">
+                              Opened {formatRelativeTime(issue.createdAt)} · {issue.comments} comments
+                            </p>
+                          </div>
+                          <Button asChild variant="outline" size="sm">
+                            <a href={issue.htmlUrl} target="_blank" rel="noopener noreferrer">
+                              <ExternalLink className="mr-1 size-3" aria-hidden="true" />
+                              View
+                            </a>
+                          </Button>
+                        </div>
+                        {issue.labels.length > 0 && (
+                          <div className="flex flex-wrap gap-2">
+                            {issue.labels.map((label) => (
+                              <Badge key={label} variant="outline">
+                                {label}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <CheckCircle2 className="size-4 text-emerald-500" aria-hidden="true" />
+                    No open issues detected — create a new one to share feedback.
+                  </p>
+                )}
+                <Button asChild variant="secondary" className="w-full">
+                  <a href={`${REPO_URL}/issues/new/choose`} target="_blank" rel="noopener noreferrer">
+                    Submit an issue or feature idea
+                  </a>
+                </Button>
               </div>
             </div>
           </div>

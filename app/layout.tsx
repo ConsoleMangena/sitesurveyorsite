@@ -2,17 +2,19 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
 import NavBar from "@/components/navbar";
-import { Inter } from "next/font/google";
+import Footer from "@/components/footer";
+import { Geist } from "next/font/google";
 
-const inter = Inter({
+const geist = Geist({
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "SiteSurveyor — Cross‑platform Geomatics & Planning Software",
-  description: "Efficient, lightweight software to collect, process, present and disseminate, manage and store geospatial data. Advanced, professional, affordable — available on desktop and mobile.",
+  title: "SiteSurveyor — Fast, Reliable Site Audits",
+  description:
+    "SiteSurveyor helps field teams capture site data, sync insights instantly, and deliver polished reports without the busywork.",
   icons: {
-    icon: '/logo.svg',
+    icon: "/logo.svg",
   },
 };
 
@@ -29,10 +31,13 @@ export default function RootLayout({
         <meta httpEquiv="Pragma" content="no-cache" />
         <meta httpEquiv="Expires" content="0" />
       </head>
-      <body className={`${inter.className} antialiased`}>
+      <body className={`${geist.className} antialiased`}>
         <Providers>
-          <NavBar />
-          {children}
+          <div className="flex min-h-screen flex-col bg-background">
+            <NavBar />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </div>
         </Providers>
       </body>
     </html>

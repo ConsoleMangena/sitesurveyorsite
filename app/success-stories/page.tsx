@@ -15,9 +15,9 @@ export default function SuccessStoriesPage() {
     links: { label: string; href: string }[];
   }[] = [
     {
-      title: "Student capstone projects",
+      title: "Academic field programs",
       context:
-        "Students use the free plan to run field practicals: capture points and lines on-site, process at the lab, and share results for review.",
+        "Academic teams rely on the free plan to run field practicals: capture points and lines on-site, process at the lab, and share results for review.",
       highlights: [
         "Cross‑platform: collect on mobile, review on desktop",
         "Basic features are free, with Pro adding AI‑assisted QA",
