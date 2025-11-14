@@ -1,5 +1,4 @@
 import Hero from "@/components/hero";
-import Footer from "@/components/footer";
 import Partners from "@/components/partners";
 import Pricing from "@/components/pricing";
 import Stats from "@/components/stats";
@@ -15,7 +14,6 @@ export default function Home() {
       <Pricing />
       <Faq />
       <Testimonials />
-      <Footer />
     </main>
   );
 }
