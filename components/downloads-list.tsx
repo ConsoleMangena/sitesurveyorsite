@@ -9,6 +9,11 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge, type BadgeVariant } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import {
+  extractReleaseHighlights,
+  formatAssetSize,
+  formatReleaseDate,
+} from "@/lib/releases";
 
 const RELEASES_PAGE = "https://github.com/ConsoleMangena/sitesurveyor/releases";
 
@@ -29,43 +34,6 @@ const filterOptions: Array<{ value: FilterKey; label: string }> = [
   { value: "stable", label: "Stable" },
   { value: "prerelease", label: "Pre-release" },
 ];
-
-function formatDate(isoDate?: string) {
-  if (!isoDate) return "Unpublished";
-  return new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(new Date(isoDate));
-}
-
-function formatBytes(bytes?: number) {
-  if (!bytes && bytes !== 0) return "";
-  const units = ["B", "KB", "MB", "GB", "TB"] as const;
-  let value = bytes;
-  let unitIndex = 0;
-  while (value >= 1024 && unitIndex < units.length - 1) {
-    value /= 1024;
-    unitIndex += 1;
-  }
-  return `${value % 1 === 0 ? value.toFixed(0) : value.toFixed(1)} ${units[unitIndex]}`;
-}
-
-function extractHighlights(body?: string | null) {
-  if (!body) return [] as Array<{ text: string; isBreaking: boolean }>;
-
-  const lines = body
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean);
-
-  const bulletPoints = lines
-    .filter((line) => /^[-*+]/.test(line))
-    .map((line) => line.replace(/^[-*+]\s*/, ""));
-
-  const meaningful = (bulletPoints.length > 0 ? bulletPoints : lines).filter((line) => line.length > 3);
-
-  return meaningful.slice(0, 3).map((text) => ({
-    text,
-    isBreaking: /breaking/i.test(text),
-  }));
-}
 
 function resolveAssetMeta(name: string): AssetMeta[] {
   const lower = name.toLowerCase();
@@ -120,6 +88,10 @@ export default function DownloadsList({ releases }: Props) {
       });
   }, [releases, track, query]);
 
+  const latestStableId = useMemo(() => {
+    return filtered.find((release) => !release.prerelease)?.id ?? null;
+  }, [filtered]);
+
   if (releases.length === 0) {
     return (
       <div className="text-center text-muted-foreground text-sm">
@@ -172,9 +144,9 @@ export default function DownloadsList({ releases }: Props) {
 
       <div className="grid gap-6 md:grid-cols-2">
         {filtered.map((release, index) => {
-          const highlights = extractHighlights(release.body);
-          const published = formatDate(release.published_at);
-          const isLatestStable = filtered.findIndex((r) => !r.prerelease) === index && !release.prerelease;
+          const highlights = extractReleaseHighlights(release.body);
+          const published = formatReleaseDate(release.published_at);
+          const isLatestStable = !release.prerelease && release.id === latestStableId;
 
           return (
             <Card key={release.id} className="bg-card/80 backdrop-blur">
@@ -239,7 +211,7 @@ export default function DownloadsList({ releases }: Props) {
                               <span className="truncate text-sm font-medium" title={asset.name}>
                                 {asset.name}
                               </span>
-                              <span className="text-xs text-muted-foreground">{formatBytes(asset.size)}</span>
+                              <span className="text-xs text-muted-foreground">{formatAssetSize(asset.size)}</span>
                               <div className="mt-1 flex flex-wrap gap-1">
                                 {meta.map((entry, idx) => (
                                   <Badge key={idx} variant={entry.variant}>

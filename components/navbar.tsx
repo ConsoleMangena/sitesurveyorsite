@@ -48,10 +48,8 @@ export default function NavBar() {
     { name: "About", href: "/about" },
     { name: "Downloads", href: "/downloads" },
     { name: "Changelog", href: "/changelog" },
-    { name: "Playground", href: "/playground" },
     { name: "Documentation", href: "/documentation" },
     { name: "Community", href: "/community" },
-    { name: "Success Stories", href: "/success-stories" },
     { name: "News", href: "/news" },
     { name: "Events", href: "/events" },
   ];

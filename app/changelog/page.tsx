@@ -5,6 +5,7 @@ import { ArrowUpRight, Clock3 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { fetchAllReleases } from "@/lib/github";
+import { extractReleaseHighlights, formatReleaseDate } from "@/lib/releases";
 
 export const metadata: Metadata = {
   title: "Changelog | SiteSurveyor",
@@ -29,16 +30,6 @@ function groupByMonth(releases: Awaited<ReturnType<typeof fetchAllReleases>>) {
   }
 
   return Array.from(map.entries()).map(([period, releases]) => ({ period, releases }));
-}
-
-function extractHighlights(body?: string | null) {
-  if (!body) return [] as string[];
-  return body
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter((line) => /^[-*+]/.test(line))
-    .map((line) => line.replace(/^[-*+]\s*/, ""))
-    .slice(0, 4);
 }
 
 export default async function ChangelogPage() {
@@ -71,12 +62,8 @@ export default async function ChangelogPage() {
             </div>
             <div className="space-y-4">
               {section.releases.map((release) => {
-                const published = release.published_at
-                  ? new Date(release.published_at).toLocaleDateString("en-US", {
-                      dateStyle: "medium",
-                    })
-                  : "Unpublished";
-                const highlights = extractHighlights(release.body);
+                const published = formatReleaseDate(release.published_at);
+                const highlights = extractReleaseHighlights(release.body);
 
                 return (
                   <Card key={release.id} className="bg-card/80 backdrop-blur">
@@ -93,7 +80,7 @@ export default async function ChangelogPage() {
                       {highlights.length > 0 ? (
                         <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
                           {highlights.map((item, index) => (
-                            <li key={index}>{item}</li>
+                            <li key={index}>{item.text}</li>
                           ))}
                         </ul>
                       ) : (

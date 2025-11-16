@@ -1,55 +1,29 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowDownToLine, ArrowUpRight, BellPlus, BookmarkCheck, CalendarClock } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowDownToLine,
+  ArrowUpRight,
+  BellPlus,
+  BookmarkCheck,
+  CalendarClock,
+  GitBranch,
+  Globe,
+  MonitorSmartphone,
+} from "lucide-react";
 
 import DownloadsList from "@/components/downloads-list";
 import ReleaseAlertForm from "@/components/release-alert-form";
 import StatusWidget from "@/components/status-widget";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { fetchAllReleases, REPO_FULL_NAME } from "@/lib/github";
-
-type Highlight = {
-  text: string;
-  isBreaking: boolean;
-};
-
-function formatDate(isoDate?: string) {
-  if (!isoDate) return "Unpublished";
-  return new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(new Date(isoDate));
-}
-
-function formatBytes(bytes?: number) {
-  if (!bytes && bytes !== 0) return "";
-  const units = ["B", "KB", "MB", "GB", "TB"] as const;
-  let value = bytes;
-  let unitIndex = 0;
-  while (value >= 1024 && unitIndex < units.length - 1) {
-    value /= 1024;
-    unitIndex += 1;
-  }
-  return `${value % 1 === 0 ? value.toFixed(0) : value.toFixed(1)} ${units[unitIndex]}`;
-}
-
-function extractHighlights(body?: string | null): Highlight[] {
-  if (!body) return [];
-
-  const lines = body
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean);
-
-  const bulletPoints = lines
-    .filter((line) => /^[-*+]/.test(line))
-    .map((line) => line.replace(/^[-*+]\s*/, ""));
-
-  const meaningful = (bulletPoints.length > 0 ? bulletPoints : lines).filter((line) => line.length > 3);
-
-  return meaningful.slice(0, 3).map((text) => ({
-    text,
-    isBreaking: /breaking/i.test(text),
-  }));
-}
+import { fetchAllReleases, REPO_FULL_NAME, type GitHubRelease } from "@/lib/github";
+import {
+  extractReleaseHighlights,
+  formatAssetSize,
+  formatReleaseDate,
+  type ReleaseHighlight,
+} from "@/lib/releases";
 
 export const metadata: Metadata = {
   title: "Downloads | SiteSurveyor",
@@ -57,11 +31,59 @@ export const metadata: Metadata = {
 };
 
 export default async function DownloadsPage() {
-  const releases = await fetchAllReleases();
+  let releases: GitHubRelease[] = [];
+  let releasesError: string | null = null;
+
+  try {
+    releases = await fetchAllReleases();
+  } catch (error) {
+    releasesError = "GitHub releases are unavailable right now. Please try again in a moment.";
+  }
+
   const latestRelease = releases.find((release) => !release.prerelease) ?? releases[0];
-  const latestHighlights = latestRelease ? extractHighlights(latestRelease.body) : [];
+  const latestHighlights: ReleaseHighlight[] = latestRelease ? extractReleaseHighlights(latestRelease.body) : [];
   const featuredAssets = latestRelease?.assets.slice(0, 3) ?? [];
   const primaryAsset = featuredAssets[0];
+
+  const downloadTiles = [
+    {
+      title: "Web experience",
+      description: "Access SiteSurveyor instantly in any modern browser with zero installs.",
+      action: "Launch web app",
+      href: "/",
+      icon: Globe,
+      pill: "Recommended",
+    },
+    {
+      title: latestRelease
+        ? `${latestRelease.prerelease ? "Prerelease" : "Stable"} build`
+        : "Latest build",
+      description: latestRelease
+        ? `Tag ${latestRelease.tag_name} · ${formatReleaseDate(latestRelease.published_at)}`
+        : "Pull tagged artifacts directly from GitHub releases.",
+      action: primaryAsset ? `Download ${primaryAsset.name}` : "View release",
+      href:
+        primaryAsset?.browser_download_url ||
+        latestRelease?.html_url ||
+        `https://github.com/${REPO_FULL_NAME}/releases/latest`,
+      icon: MonitorSmartphone,
+    },
+    {
+      title: "Release archive",
+      description: "Browse every tagged build, check hashes, and inspect source archives.",
+      action: "Open releases",
+      href: `https://github.com/${REPO_FULL_NAME}/releases`,
+      icon: GitBranch,
+      external: true,
+    },
+    {
+      title: "Release alerts",
+      description: "Get an email the moment a new platform build lands.",
+      action: "Subscribe",
+      href: "#release-alerts",
+      icon: BellPlus,
+    },
+  ];
 
   return (
     <main className="max-w-6xl mx-auto px-4 py-12 space-y-12">
@@ -74,24 +96,63 @@ export default async function DownloadsPage() {
         </p>
       </header>
 
-      <section className="grid gap-6 md:grid-cols-2">
-        <div className="space-y-2">
-          <h2 className="text-lg font-medium">Web experience</h2>
-          <ol className="list-decimal pl-5 space-y-1 text-muted-foreground">
-            <li>Visit the homepage and sign in with your SiteSurveyor account.</li>
-            <li>Manage projects, field data, and processing workflows from any device.</li>
-            <li>Optimized for Chromium, Firefox, and mobile browsers.</li>
-          </ol>
-        </div>
-        <div className="space-y-2">
-          <h2 className="text-lg font-medium">Source-aligned releases</h2>
-          <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
-            <li>Pull tagged releases directly from GitHub.</li>
-            <li>Inspect changelogs before you download.</li>
-            <li>Track prereleases as new platform targets stabilize.</li>
-          </ul>
-        </div>
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {downloadTiles.map((tile) => {
+          const Icon = tile.icon;
+          const isExternal = tile.external || tile.href.startsWith("http");
+
+          const button = (
+            <Button
+              asChild
+              size="sm"
+              variant={tile.pill ? "secondary" : "outline"}
+              className="mt-4"
+            >
+              {isExternal ? (
+                <a href={tile.href} target="_blank" rel="noreferrer">
+                  {tile.action}
+                  <ArrowUpRight className="ml-2 size-4" aria-hidden="true" />
+                </a>
+              ) : (
+                <Link href={tile.href}>
+                  {tile.action}
+                  <ArrowUpRight className="ml-2 size-4" aria-hidden="true" />
+                </Link>
+              )}
+            </Button>
+          );
+
+          return (
+            <article
+              key={tile.title}
+              className="rounded-2xl border bg-card/70 p-5 shadow-sm flex flex-col"
+            >
+              <div className="flex items-start justify-between">
+                <div className="rounded-full bg-primary/10 p-2 text-primary">
+                  <Icon className="size-5" aria-hidden="true" />
+                </div>
+                {tile.pill ? (
+                  <Badge variant="secondary" className="text-xs">
+                    {tile.pill}
+                  </Badge>
+                ) : null}
+              </div>
+              <div className="mt-4 space-y-2">
+                <h2 className="text-base font-semibold">{tile.title}</h2>
+                <p className="text-sm text-muted-foreground">{tile.description}</p>
+              </div>
+              {button}
+            </article>
+          );
+        })}
       </section>
+
+      {releasesError ? (
+        <div className="rounded-2xl border border-amber-500/50 bg-amber-500/10 p-4 text-sm text-amber-900 dark:text-amber-100 flex items-start gap-3">
+          <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+          <p>{releasesError}</p>
+        </div>
+      ) : null}
 
       {latestRelease ? (
         <section className="rounded-3xl border bg-card/80 p-6 shadow-sm space-y-6">
@@ -100,7 +161,7 @@ export default async function DownloadsPage() {
               {latestRelease.prerelease ? "Latest prerelease" : "Latest stable release"}
             </Badge>
             <span className="text-sm text-muted-foreground">
-              Published {formatDate(latestRelease.published_at)}
+              Published {formatReleaseDate(latestRelease.published_at)}
             </span>
             <span className="text-sm text-muted-foreground">Tag {latestRelease.tag_name}</span>
           </div>
@@ -151,14 +212,19 @@ export default async function DownloadsPage() {
           <div className="space-y-3">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Featured assets</p>
             {featuredAssets.length > 0 ? (
-              <ul className="grid gap-3 md:grid-cols-3">
+              <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {featuredAssets.map((asset) => (
-                  <li key={asset.id} className="rounded-2xl border border-border/60 bg-background/90 p-4">
-                    <div className="text-sm font-medium truncate" title={asset.name}>
-                      {asset.name}
+                  <li
+                    key={asset.id}
+                    className="rounded-2xl border border-border/60 bg-background/90 p-4 flex flex-col"
+                  >
+                    <div>
+                      <p className="text-sm font-semibold truncate" title={asset.name}>
+                        {asset.name}
+                      </p>
+                      <p className="text-xs text-muted-foreground">{formatAssetSize(asset.size)}</p>
                     </div>
-                    <div className="text-xs text-muted-foreground">{formatBytes(asset.size)}</div>
-                    <Button asChild variant="ghost" size="sm" className="mt-3 w-full justify-between">
+                    <Button asChild variant="ghost" size="sm" className="mt-4 justify-between">
                       <a href={asset.browser_download_url} target="_blank" rel="noreferrer">
                         Download
                         <ArrowDownToLine className="size-4" aria-hidden="true" />
@@ -198,7 +264,7 @@ export default async function DownloadsPage() {
         </div>
 
         <aside className="space-y-6">
-          <div className="rounded-2xl border bg-card/80 p-5 shadow-sm">
+          <div id="release-alerts" className="rounded-2xl border bg-card/80 p-5 shadow-sm">
             <div className="flex items-center gap-3">
               <BellPlus className="size-5 text-primary" aria-hidden="true" />
               <div>
