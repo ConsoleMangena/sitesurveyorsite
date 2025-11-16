@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 const description =
-  "Learn how SiteSurveyor's open-source community builds and ships geospatial workflows across capture, QA, and delivery.";
+  "See what SiteSurveyor does, why it exists, and how the community keeps open surveying tools moving forward.";
 
 export const metadata: Metadata = {
   title: "About | SiteSurveyor",
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     canonical: "https://sitesurveyor.dev/about",
   },
   openGraph: {
-    title: "About SiteSurveyor · Open geomatics tooling",
+    title: "About SiteSurveyor",
     description,
     url: "https://sitesurveyor.dev/about",
     siteName: "SiteSurveyor",
@@ -34,25 +34,25 @@ export default function AboutPage() {
     {
       title: "Open by default",
       description:
-        "Every feature ships from the public repository, with issues, discussions, and roadmaps visible to all.",
+        "Every feature ships from the public repository. Issues, discussions, and roadmaps stay in the open.",
       icon: Globe,
     },
     {
       title: "Community guarded",
       description:
-        "Transparent governance plus lightweight RFCs keep platform choices measured and reversible.",
+        "Clear review steps and lightweight RFCs keep big choices reversible.",
       icon: ShieldCheck,
     },
     {
       title: "Inclusive velocity",
       description:
-        "Templates, starter issues, and mentorship sessions help first‑time contributors land real impact.",
+        "Starter issues, templates, and regular pairing sessions help first-time contributors land real impact.",
       icon: Users,
     },
     {
       title: "Pragmatic innovation",
       description:
-        "We prototype fast, document rigorously, and ship artifacts that teams can depend on in production.",
+        "We prototype fast, document what works, and ship artifacts that teams can depend on in production.",
       icon: Sparkles,
     },
   ];
@@ -97,10 +97,10 @@ export default function AboutPage() {
     <main className="max-w-6xl mx-auto px-4 py-12 space-y-12">
       <section className="rounded-3xl border bg-gradient-to-br from-background via-background to-primary/5 p-8 text-center space-y-4">
         <p className="text-sm uppercase tracking-wide text-primary/80 font-semibold">Open source + geospatial</p>
-        <h1 className="text-3xl md:text-4xl font-semibold tracking-tight">SiteSurveyor is built in the open</h1>
+        <h1 className="text-3xl md:text-4xl font-semibold tracking-tight">Built in the open for surveying teams</h1>
         <p className="text-muted-foreground max-w-3xl mx-auto">
-          We are an open-source geomatics platform maintained by surveyors, planners, and civic technologists. Every
-          commit, build pipeline, and roadmap discussion happens in public so teams can trust what they deploy.
+          SiteSurveyor is a community project for surveyors, planners, and civic technologists. Every commit and
+          release is public so teams can see how the platform works before they run it.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
           <Button asChild>
@@ -133,14 +133,13 @@ export default function AboutPage() {
             <p className="text-sm text-muted-foreground">Lead developer & SiteSurveyor project steward</p>
           </div>
           <p className="text-muted-foreground">
-            Console started SiteSurveyor after years of coordinating survey teams who needed transparent tooling from
-            capture to delivery. He now reviews community contributions, maintains the release pipeline, and mentors new
-            contributors entering open-source geomatics.
+            Console started SiteSurveyor after coordinating survey teams that needed transparent tooling from capture to
+            delivery. He now reviews contributions, keeps the release pipeline healthy, and helps new contributors get
+            set up.
           </p>
           <div className="flex flex-wrap gap-3">
             <Badge variant="secondary">Roadmap curator</Badge>
             <Badge variant="outline">Full-stack engineer</Badge>
-            <Badge variant="info">Field data advocate</Badge>
           </div>
         </div>
       </section>
@@ -148,10 +147,10 @@ export default function AboutPage() {
       <section className="space-y-6">
         <div className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Why we exist</p>
-          <h2 className="text-2xl font-semibold">Accessible, auditable geomatics workflows</h2>
+          <h2 className="text-2xl font-semibold">Accessible geomatics workflows</h2>
           <p className="text-muted-foreground max-w-3xl">
-            SiteSurveyor keeps the entire capture → QA → delivery pipeline transparent. Tagged releases mirror source,
-            desktop and web experiences stay in sync, and data governance is configurable without vendor lock‑in.
+            SiteSurveyor keeps the capture → QA → delivery pipeline transparent. Tagged releases mirror source, desktop
+            and web experiences stay in sync, and data governance stays configurable without vendor lock-in.
           </p>
         </div>
 
@@ -178,8 +177,8 @@ export default function AboutPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Contribute</p>
           <h2 className="text-2xl font-semibold">How to get involved</h2>
           <p className="text-muted-foreground">
-            Whether you are field-testing builds, writing documentation, or shipping features, the workflow stays the
-            same—transparent, async-friendly, and designed for shared ownership.
+            Whether you test builds, write documentation, or ship features, the workflow stays the same—transparent,
+            async-friendly, and built for shared ownership.
           </p>
         </div>
         <ol className="space-y-4 border-l pl-6">
@@ -207,8 +206,8 @@ export default function AboutPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Community resources</p>
           <h2 className="text-2xl font-semibold">Everything lives beside the code</h2>
           <p className="text-muted-foreground max-w-3xl">
-            Deployment docs, platform builds, architecture decisions, and governance notes share one repo. No PDF lag, no
-            private portals—just immediate context for anyone joining the project.
+            Deployment docs, platform builds, architecture decisions, and governance notes live beside one another in the
+            repo. No PDF lag, no private portals—just fast context for anyone joining the project.
           </p>
         </div>
 

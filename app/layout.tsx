@@ -10,12 +10,65 @@ const geist = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "SiteSurveyor — Fast, Reliable Site Audits",
+  metadataBase: new URL("https://sitesurveyor.dev"),
+  title: {
+    default: "SiteSurveyor — Fast, Reliable Site Audits",
+    template: "%s | SiteSurveyor",
+  },
   description:
     "SiteSurveyor helps field teams capture site data, sync insights instantly, and deliver polished reports without the busywork.",
+  keywords: [
+    "site surveys",
+    "field data collection",
+    "site assessment software",
+    "construction site audits",
+    "SiteSurveyor",
+  ],
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "SiteSurveyor — Fast, Reliable Site Audits",
+    description:
+      "SiteSurveyor helps field teams capture site data, sync insights instantly, and deliver polished reports without the busywork.",
+    url: "https://sitesurveyor.dev",
+    siteName: "SiteSurveyor",
+    type: "website",
+    locale: "en_US",
+    images: [
+      {
+        url: "https://sitesurveyor.dev/preview.png",
+        width: 1200,
+        height: 630,
+        alt: "SiteSurveyor platform preview",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SiteSurveyor — Fast, Reliable Site Audits",
+    description:
+      "SiteSurveyor helps field teams capture site data, sync insights instantly, and deliver polished reports without the busywork.",
+    images: ["https://sitesurveyor.dev/preview.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
   icons: {
     icon: "/logo.svg",
   },
+};
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "SiteSurveyor",
+  url: "https://sitesurveyor.dev",
+  logo: "https://sitesurveyor.dev/logo.svg",
+  sameAs: ["https://github.com/ConsoleMangena/sitesurveyor"],
+  description:
+    "SiteSurveyor helps field teams capture site data, sync insights instantly, and deliver polished reports without the busywork.",
 };
 
 export default function RootLayout({
@@ -30,6 +83,11 @@ export default function RootLayout({
         <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
         <meta httpEquiv="Pragma" content="no-cache" />
         <meta httpEquiv="Expires" content="0" />
+        <script
+          type="application/ld+json"
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
       </head>
       <body className={`${geist.className} antialiased`}>
         <Providers>
